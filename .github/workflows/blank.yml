@@ -20,6 +20,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          
-      - name: Test
-        run: mvn -B test --file pom.xml
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Test core module
+        run: gradle :core:test
