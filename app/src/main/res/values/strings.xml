@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ticketing Demo</string>
+    <string name="login_title">Ticket Reservation Login</string>
+    <string name="login_subtitle">Use the fake accounts below to test the flow in the emulator.</string>
+    <string name="demo_credentials">Customer\nemail: customer@gmail.com\npassword: secret123\n\nAdmin\nemail: admin@gmail.com\npassword: adminpass</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Log In</string>
+    <string name="login_success_title">Login successful</string>
+    <string name="login_success_subtitle">Welcome!\nRole: %2$s\nEmail: %3$s</string>
+    <string name="back_button">Back</string>
+</resources>
