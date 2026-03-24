@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ticketing Demo</string>
-    <string name="login_title">Ticket Reservation Login</string>
+    <string name="login_title">Tickit</string>
     <string name="login_subtitle">Use the fake accounts below to test the flow in the emulator.</string>
     <string name="demo_credentials">Customer\nemail: customer@gmail.com\npassword: secret123\n\nAdmin\nemail: admin@gmail.com\npassword: adminpass</string>
     <string name="email_hint">Email</string>
