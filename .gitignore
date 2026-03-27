@@ -31,3 +31,4 @@ replay_pid*
 
 # IDE files
 .idea/
+*.md
