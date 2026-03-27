@@ -6,7 +6,9 @@ import java.util.UUID;
 
 public record Event(
         UUID id,
+        String eventCode,
         String title,
+        String category,
         String description,
         String venue,
         LocalDateTime startDateTime,
@@ -18,7 +20,9 @@ public record Event(
 ) {
     public Event {
         Objects.requireNonNull(id, "id must not be null");
+        Objects.requireNonNull(eventCode, "eventCode must not be null");
         Objects.requireNonNull(title, "title must not be null");
+        Objects.requireNonNull(category, "category must not be null");
         Objects.requireNonNull(description, "description must not be null");
         Objects.requireNonNull(venue, "venue must not be null");
         Objects.requireNonNull(startDateTime, "startDateTime must not be null");
@@ -26,6 +30,15 @@ public record Event(
         Objects.requireNonNull(organizerId, "organizerId must not be null");
         Objects.requireNonNull(status, "status must not be null");
 
+        if (eventCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("eventCode must not be empty");
+        }
+        if (title.trim().isEmpty()) {
+            throw new IllegalArgumentException("title must not be empty");
+        }
+        if (category.trim().isEmpty()) {
+            throw new IllegalArgumentException("category must not be empty");
+        }
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity must be zero or greater");
         }
