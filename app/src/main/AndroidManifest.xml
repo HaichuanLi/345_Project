@@ -7,6 +7,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TicketingDemo">
         <activity
+            android:name=".EventListActivity"
+            android:exported="false" />
+        <activity
             android:name=".ResultActivity"
             android:exported="false" />
         <activity

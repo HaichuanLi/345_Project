@@ -10,4 +10,18 @@
     <string name="login_success_title">Login successful</string>
     <string name="login_success_subtitle">Welcome!\nRole: %2$s\nEmail: %3$s</string>
     <string name="back_button">Back</string>
+    <string name="events_title">Available Events</string>
+    <string name="event_code_label">Event Code</string>
+    <string name="start_time_label">Start Time</string>
+    <string name="end_time_label">End Time</string>
+    <string name="available_seats_label">Available Seats</string>
+    <string name="view_events_button">View Events</string>
+    <string name="filter_date_hint">Filter by date (YYYY-MM-DD)</string>
+    <string name="filter_location_hint">Filter by location</string>
+    <string name="filter_category_hint">Filter by category</string>
+    <string name="filter_all_locations">All Locations</string>
+    <string name="filter_all_categories">All Categories</string>
+    <string name="apply_filters_button">Apply Filters</string>
+    <string name="clear_filters_button">Clear Filters</string>
+    <string name="no_events_match_filters">No events match the selected filters.</string>
 </resources>

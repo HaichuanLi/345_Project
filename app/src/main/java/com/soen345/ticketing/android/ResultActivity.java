@@ -1,5 +1,6 @@
 package com.soen345.ticketing.android;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,12 @@ public class ResultActivity extends AppCompatActivity {
 
         binding.resultTitle.setText(getString(R.string.login_success_title));
         binding.resultSubtitle.setText(getString(R.string.login_success_subtitle, name, role, email));
+
+        binding.viewEventsButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, EventListActivity.class);
+            startActivity(intent);
+        });
+
         binding.doneButton.setOnClickListener(view -> finish());
     }
 }

@@ -21,10 +21,17 @@
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
     <Button
-        android:id="@+id/doneButton"
+        android:id="@+id/viewEventsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:text="@string/view_events_button" />
+
+    <Button
+        android:id="@+id/doneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="@string/back_button" />
 
 </LinearLayout>
