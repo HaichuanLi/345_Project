@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.soen345.ticketing.android.adapter.EventListAdapter;
 import com.soen345.ticketing.android.databinding.ActivityEventListBinding;
+import com.soen345.ticketing.application.usecase.event.FilterEventsUseCase;
 import com.soen345.ticketing.application.usecase.event.ListEventsUseCase;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryEventRepository;
@@ -19,7 +20,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,6 +28,7 @@ public class EventListActivity extends AppCompatActivity {
 
     private ActivityEventListBinding binding;
     private EventListAdapter adapter;
+    private FilterEventsUseCase filterEventsUseCase;
     private List<Event> allEvents = new ArrayList<>();
     private LocalDate selectedDate;
 
@@ -39,6 +40,7 @@ public class EventListActivity extends AppCompatActivity {
 
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
         ListEventsUseCase listEventsUseCase = new ListEventsUseCase(eventRepository);
+        filterEventsUseCase = new FilterEventsUseCase();
         allEvents = listEventsUseCase.listAvailableEvents();
 
         adapter = new EventListAdapter(allEvents, event -> {
@@ -90,31 +92,21 @@ public class EventListActivity extends AppCompatActivity {
             ? ""
             : binding.filterCategoryInput.getSelectedItem().toString();
 
-        String locationFilter = normalize(selectedLocation);
-        String categoryFilter = normalize(selectedCategory);
         boolean allLocationsSelected = selectedLocation.equals(getString(R.string.filter_all_locations));
         boolean allCategoriesSelected = selectedCategory.equals(getString(R.string.filter_all_categories));
 
-        List<Event> filteredEvents = new ArrayList<>();
-        for (Event event : allEvents) {
-            boolean dateMatches = selectedDate == null
-                    || event.startDateTime().toLocalDate().equals(selectedDate);
-            boolean locationMatches = allLocationsSelected
-                || normalize(event.venue()).equals(locationFilter);
-            boolean categoryMatches = allCategoriesSelected
-                || normalize(event.category()).equals(categoryFilter);
+        String locationFilter = allLocationsSelected ? "" : selectedLocation;
+        String categoryFilter = allCategoriesSelected ? "" : selectedCategory;
 
-            if (dateMatches && locationMatches && categoryMatches) {
-                filteredEvents.add(event);
-            }
-        }
+        List<Event> filteredEvents = filterEventsUseCase.filter(
+            allEvents,
+            selectedDate,
+            locationFilter,
+            categoryFilter
+        );
 
         adapter.updateEvents(filteredEvents);
         binding.emptyStateText.setVisibility(filteredEvents.isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    private String normalize(String value) {
-        return value.trim().toLowerCase(Locale.ROOT);
     }
 
     private void setupFilterDropdowns() {
