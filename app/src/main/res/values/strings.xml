@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ticketing Demo</string>
+    <string name="back_button">Back</string>
 
     <!-- Login -->
     <string name="login_title">Ticket Reservation Login</string>
