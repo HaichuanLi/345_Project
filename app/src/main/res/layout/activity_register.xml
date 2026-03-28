@@ -56,11 +56,11 @@
                 android:text="@string/role_customer" />
 
             <RadioButton
-                android:id="@+id/roleOrganizer"
+                android:id="@+id/roleAdmin"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/role_organizer" />
+                android:text="@string/role_admin" />
 
         </RadioGroup>
 

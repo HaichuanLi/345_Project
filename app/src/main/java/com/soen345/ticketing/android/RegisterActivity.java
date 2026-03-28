@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
         int checkedId = binding.roleGroup.getCheckedRadioButtonId();
         if (checkedId == R.id.roleCustomer) {
             return Role.CUSTOMER;
-        } else if (checkedId == R.id.roleOrganizer) {
+        } else if (checkedId == R.id.roleAdmin) {
             return Role.ADMIN;
         }
         return null;

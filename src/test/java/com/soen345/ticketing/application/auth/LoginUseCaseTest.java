@@ -2,10 +2,14 @@ package com.soen345.ticketing.application.auth;
 
 import com.soen345.ticketing.application.usecase.auth.LoginUseCase;
 import com.soen345.ticketing.domain.user.Role;
+import com.soen345.ticketing.domain.user.User;
+import com.soen345.ticketing.domain.user.UserStatus;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import com.soen345.ticketing.support.FakePasswordHasher;
 import com.soen345.ticketing.support.UserFixtures;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -70,5 +74,40 @@ class LoginUseCaseTest {
         );
 
         assertEquals("Invalid credentials", exception.getMessage());
+    }
+
+    @Test
+    void rejectsSuspendedUser() {
+        User suspended = new User(
+                UUID.randomUUID(), "Suspended", "suspended@site.com", null,
+                "HASH_pass", Role.CUSTOMER, UserStatus.SUSPENDED
+        );
+        userRepository.save(suspended);
+        passwordHasher.stubMatch("pass", "HASH_pass", true);
+
+        AuthenticationException exception = assertThrows(
+                AuthenticationException.class,
+                () -> loginUseCase.login(new LoginCommand("suspended@site.com", "pass"))
+        );
+
+        assertEquals("User account is not active", exception.getMessage());
+    }
+
+    @Test
+    void loginEmailIsCaseInsensitive() {
+        userRepository.save(UserFixtures.customer("user@site.com", "HASH_pass"));
+        passwordHasher.stubMatch("pass", "HASH_pass", true);
+
+        LoginResult result = loginUseCase.login(new LoginCommand("USER@SITE.COM", "pass"));
+
+        assertEquals("user@site.com", result.email());
+    }
+
+    @Test
+    void rejectsNullCommand() {
+        assertThrows(
+                ValidationException.class,
+                () -> loginUseCase.login(null)
+        );
     }
 }
