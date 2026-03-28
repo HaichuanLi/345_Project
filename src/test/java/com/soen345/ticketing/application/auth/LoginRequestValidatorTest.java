@@ -9,23 +9,23 @@ class LoginRequestValidatorTest {
     private final LoginRequestValidator validator = new LoginRequestValidator();
 
     @Test
-    void rejectsBlankEmail() {
+    void rejectsBlankIdentifier() {
         LoginCommand command = new LoginCommand("", "secret123");
 
         ValidationException exception =
                 assertThrows(ValidationException.class, () -> validator.validate(command));
 
-        assertEquals("Email must not be blank", exception.getMessage());
+        assertEquals("Email or phone number must not be blank", exception.getMessage());
     }
 
     @Test
-    void rejectsInvalidEmailFormat() {
-        LoginCommand command = new LoginCommand("not-an-email", "secret123");
+    void rejectsInvalidIdentifier() {
+        LoginCommand command = new LoginCommand("not-valid", "secret123");
 
         ValidationException exception =
                 assertThrows(ValidationException.class, () -> validator.validate(command));
 
-        assertEquals("Email format is invalid", exception.getMessage());
+        assertEquals("Enter a valid email address or phone number", exception.getMessage());
     }
 
     @Test
@@ -36,5 +36,17 @@ class LoginRequestValidatorTest {
                 assertThrows(ValidationException.class, () -> validator.validate(command));
 
         assertEquals("Password must not be blank", exception.getMessage());
+    }
+
+    @Test
+    void acceptsValidEmail() {
+        LoginCommand command = new LoginCommand("customer@site.com", "secret123");
+        validator.validate(command);
+    }
+
+    @Test
+    void acceptsValidPhone() {
+        LoginCommand command = new LoginCommand("5141234567", "secret123");
+        validator.validate(command);
     }
 }
