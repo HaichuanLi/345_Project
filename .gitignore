@@ -18,6 +18,7 @@ local.properties
 
 # Package Files #
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
@@ -31,3 +32,4 @@ replay_pid*
 
 # IDE files
 .idea/
+*.md
