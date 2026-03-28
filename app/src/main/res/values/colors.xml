@@ -6,6 +6,13 @@
     <color name="green_light">#E1F5EE</color>
     <color name="green_mid">#5DCAA5</color>
 
+    <!-- UI Colors -->
+    <color name="blue_900">#0D47A1</color>
+    <color name="blue_light">#BBDEFB</color>
+    <color name="orange_500">#FF9800</color>
+    <color name="sand_50">#FFF8E1</color>
+    <color name="white">#FFFFFF</color>
+
     <!-- Text -->
     <color name="text_primary">#111111</color>
     <color name="text_secondary">#888888</color>
@@ -50,4 +57,5 @@
     <!-- Danger / cancel -->
     <color name="danger_text">#A32D2D</color>
     <color name="danger_border">#F09595</color>
+    <color name="danger_bg">#FDEAEA</color>
 </resources>
