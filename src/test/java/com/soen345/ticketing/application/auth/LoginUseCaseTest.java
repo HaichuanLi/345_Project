@@ -18,7 +18,7 @@ class LoginUseCaseTest {
             new LoginUseCase(userRepository, passwordHasher, validator);
 
     @Test
-    void logsInCustomerWithValidCredentials() {
+    void logsInCustomerWithEmail() {
         userRepository.save(UserFixtures.customer("customer@site.com", "HASH_secret123"));
         passwordHasher.stubMatch("secret123", "HASH_secret123", true);
 
@@ -29,7 +29,18 @@ class LoginUseCaseTest {
     }
 
     @Test
-    void logsInAdminWithValidCredentials() {
+    void logsInCustomerWithPhone() {
+        userRepository.save(UserFixtures.customerWithPhone("5141234567", "HASH_secret123"));
+        passwordHasher.stubMatch("secret123", "HASH_secret123", true);
+
+        LoginResult result = loginUseCase.login(new LoginCommand("5141234567", "secret123"));
+
+        assertEquals("5141234567", result.phone());
+        assertEquals(Role.CUSTOMER, result.role());
+    }
+
+    @Test
+    void logsInAdminWithEmail() {
         userRepository.save(UserFixtures.admin("admin@site.com", "HASH_adminpass"));
         passwordHasher.stubMatch("adminpass", "HASH_adminpass", true);
 
@@ -45,7 +56,7 @@ class LoginUseCaseTest {
                 () -> loginUseCase.login(new LoginCommand("missing@site.com", "secret123"))
         );
 
-        assertEquals("Invalid email or password", exception.getMessage());
+        assertEquals("Invalid credentials", exception.getMessage());
     }
 
     @Test
@@ -58,6 +69,6 @@ class LoginUseCaseTest {
                 () -> loginUseCase.login(new LoginCommand("customer@site.com", "wrongpass"))
         );
 
-        assertEquals("Invalid email or password", exception.getMessage());
+        assertEquals("Invalid credentials", exception.getMessage());
     }
 }
