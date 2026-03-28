@@ -1,7 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="blue_900">#0D3B66</color>
-    <color name="sand_50">#FAF0CA</color>
-    <color name="orange_500">#F95738</color>
+    <!-- Brand -->
+    <color name="green_primary">#1D9E75</color>
+    <color name="green_dark">#0F6E56</color>
+    <color name="green_light">#E1F5EE</color>
+    <color name="green_mid">#5DCAA5</color>
+
+    <!-- UI Colors -->
+    <color name="blue_900">#0D47A1</color>
+    <color name="blue_light">#BBDEFB</color>
+    <color name="orange_500">#FF9800</color>
+    <color name="sand_50">#FFF8E1</color>
     <color name="white">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#111111</color>
+    <color name="text_secondary">#888888</color>
+    <color name="text_tertiary">#BBBBBB</color>
+    <color name="text_on_green">#FFFFFF</color>
+
+    <!-- Backgrounds -->
+    <color name="background_primary">#FFFFFF</color>
+    <color name="background_secondary">#F5F5F3</color>
+    <color name="background_page">#F0EFEB</color>
+
+    <!-- Borders -->
+    <color name="border_light">#E5E5E5</color>
+    <color name="border_medium">#CCCCCC</color>
+
+    <!-- Category badges -->
+    <color name="badge_concert_bg">#E1F5EE</color>
+    <color name="badge_concert_text">#0F6E56</color>
+    <color name="badge_sports_bg">#E6F1FB</color>
+    <color name="badge_sports_text">#185FA5</color>
+    <color name="badge_movie_bg">#FAEEDA</color>
+    <color name="badge_movie_text">#854F0B</color>
+    <color name="badge_travel_bg">#FAECE7</color>
+    <color name="badge_travel_text">#993C1D</color>
+
+    <!-- Category icon backgrounds -->
+    <color name="icon_bg_concert">#E1F5EE</color>
+    <color name="icon_bg_sports">#E6F1FB</color>
+    <color name="icon_bg_movie">#FAEEDA</color>
+    <color name="icon_bg_travel">#FAECE7</color>
+
+    <!-- Info banner -->
+    <color name="blue_banner_bg">#E6F1FB</color>
+    <color name="blue_dark">#185FA5</color>
+
+    <!-- Admin stats -->
+    <color name="stat_green_bg">#E1F5EE</color>
+    <color name="stat_green_text">#1D9E75</color>
+    <color name="stat_amber_bg">#FAEEDA</color>
+    <color name="stat_amber_text">#854F0B</color>
+
+    <!-- Danger / cancel -->
+    <color name="danger_text">#A32D2D</color>
+    <color name="danger_border">#F09595</color>
+    <color name="danger_bg">#FDEAEA</color>
 </resources>
