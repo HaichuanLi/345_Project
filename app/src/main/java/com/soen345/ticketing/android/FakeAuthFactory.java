@@ -22,6 +22,7 @@ public final class FakeAuthFactory {
     static {
         seedUser("Customer", "customer@gmail.com", null, "secret123", Role.CUSTOMER);
         seedUser("Organizer", "admin@gmail.com", null, "adminpass", Role.ADMIN);
+        seedUser("Phone User", null, "5141234567", "phone123", Role.CUSTOMER);
     }
 
     private FakeAuthFactory() {

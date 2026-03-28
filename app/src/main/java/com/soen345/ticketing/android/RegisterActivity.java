@@ -2,7 +2,6 @@ package com.soen345.ticketing.android;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -51,7 +50,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         Role role = getSelectedRole();
         if (role == null) {
-            binding.errorText.setText("Please select a role");
+            binding.errorText.setText(getString(R.string.error_select_role));
             return;
         }
 
@@ -60,7 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         try {
             registerUseCase.register(new RegisterCommand(name, emailValue, phoneValue, password, role));
-            binding.successText.setText("Registration successful! You can now log in.");
+            binding.successText.setText(getString(R.string.registration_success));
         } catch (ValidationException exception) {
             binding.errorText.setText(exception.getMessage());
         }
