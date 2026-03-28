@@ -18,7 +18,7 @@
     <string name="name_hint">Full Name</string>
     <string name="role_label">Select your role:</string>
     <string name="role_customer">Customer</string>
-    <string name="role_organizer">Event Organizer</string>
+    <string name="role_admin">Admin</string>
     <string name="contact_type_label">Register with:</string>
     <string name="contact_email">Email</string>
     <string name="contact_phone">Phone</string>

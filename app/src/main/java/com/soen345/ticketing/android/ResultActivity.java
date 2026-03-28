@@ -24,7 +24,7 @@ public class ResultActivity extends AppCompatActivity {
         String phone = getIntent().getStringExtra(EXTRA_PHONE);
         String role = getIntent().getStringExtra(EXTRA_ROLE);
 
-        String displayRole = "ADMIN".equals(role) ? "Event Organizer" : "Customer";
+        String displayRole = "ADMIN".equals(role) ? getString(R.string.role_admin) : getString(R.string.role_customer);
         String contact = (email != null && !email.isEmpty()) ? email : phone;
 
         binding.resultTitle.setText(getString(R.string.login_success_title));

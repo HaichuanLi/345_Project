@@ -30,7 +30,32 @@ class RegisterUseCaseTest {
     }
 
     @Test
-    void registersOrganizerWithPhone() {
+    void registersCustomerWithPhone() {
+        RegisterCommand command = new RegisterCommand("Carol", null, "5149991111", "password123", Role.CUSTOMER);
+
+        User user = registerUseCase.register(command);
+
+        assertEquals("Carol", user.name());
+        assertNull(user.email());
+        assertEquals("5149991111", user.phone());
+        assertEquals(Role.CUSTOMER, user.role());
+        assertTrue(userRepository.findByPhone("5149991111").isPresent());
+    }
+
+    @Test
+    void registersAdminWithEmail() {
+        RegisterCommand command = new RegisterCommand("Dave", "dave@test.com", null, "password123", Role.ADMIN);
+
+        User user = registerUseCase.register(command);
+
+        assertEquals("Dave", user.name());
+        assertEquals("dave@test.com", user.email());
+        assertEquals(Role.ADMIN, user.role());
+        assertTrue(userRepository.findByEmail("dave@test.com").isPresent());
+    }
+
+    @Test
+    void registersAdminWithPhone() {
         RegisterCommand command = new RegisterCommand("Bob", null, "5149876543", "password123", Role.ADMIN);
 
         User user = registerUseCase.register(command);
@@ -51,6 +76,14 @@ class RegisterUseCaseTest {
     }
 
     @Test
+    void rejectsNullName() {
+        RegisterCommand command = new RegisterCommand(null, "a@b.com", null, "password123", Role.CUSTOMER);
+
+        ValidationException ex = assertThrows(ValidationException.class, () -> registerUseCase.register(command));
+        assertEquals("Name must not be blank", ex.getMessage());
+    }
+
+    @Test
     void rejectsNoContact() {
         RegisterCommand command = new RegisterCommand("Alice", null, null, "password123", Role.CUSTOMER);
 
@@ -61,6 +94,14 @@ class RegisterUseCaseTest {
     @Test
     void rejectsShortPassword() {
         RegisterCommand command = new RegisterCommand("Alice", "a@b.com", null, "12345", Role.CUSTOMER);
+
+        ValidationException ex = assertThrows(ValidationException.class, () -> registerUseCase.register(command));
+        assertEquals("Password must be at least 6 characters", ex.getMessage());
+    }
+
+    @Test
+    void rejectsNullPassword() {
+        RegisterCommand command = new RegisterCommand("Alice", "a@b.com", null, null, Role.CUSTOMER);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> registerUseCase.register(command));
         assertEquals("Password must be at least 6 characters", ex.getMessage());
@@ -93,10 +134,32 @@ class RegisterUseCaseTest {
     }
 
     @Test
+    void rejectsInvalidPhone() {
+        RegisterCommand command = new RegisterCommand("Alice", null, "abc", "password123", Role.CUSTOMER);
+
+        ValidationException ex = assertThrows(ValidationException.class, () -> registerUseCase.register(command));
+        assertEquals("Phone number format is invalid", ex.getMessage());
+    }
+
+    @Test
     void rejectsNullRole() {
         RegisterCommand command = new RegisterCommand("Alice", "a@b.com", null, "password123", null);
 
         ValidationException ex = assertThrows(ValidationException.class, () -> registerUseCase.register(command));
         assertEquals("Role must be selected", ex.getMessage());
+    }
+
+    @Test
+    void rejectsNullCommand() {
+        ValidationException ex = assertThrows(ValidationException.class, () -> registerUseCase.register(null));
+        assertEquals("Registration request must not be null", ex.getMessage());
+    }
+
+    @Test
+    void registeredUserCanLoginImmediately() {
+        registerUseCase.register(new RegisterCommand("Eve", "eve@test.com", null, "password123", Role.CUSTOMER));
+
+        assertTrue(userRepository.findByEmail("eve@test.com").isPresent());
+        assertEquals(UserStatus.ACTIVE, userRepository.findByEmail("eve@test.com").get().status());
     }
 }
