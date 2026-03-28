@@ -18,13 +18,17 @@ public class LoginRequestValidator {
         }
 
         String identifier = command.identifier().trim();
-        if (!isEmail(identifier) && !isPhone(identifier)) {
+        if (!isValidIdentifier(identifier)) {
             throw new ValidationException("Enter a valid email address or phone number");
         }
 
         if (command.password() == null || command.password().isBlank()) {
             throw new ValidationException("Password must not be blank");
         }
+    }
+
+    public static boolean isValidIdentifier(String identifier) {
+        return isEmail(identifier) || isPhone(identifier);
     }
 
     public static boolean isEmail(String identifier) {
