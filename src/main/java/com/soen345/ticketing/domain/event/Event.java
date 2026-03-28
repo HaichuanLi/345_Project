@@ -16,7 +16,8 @@ public record Event(
         int capacity,
         int availableTickets,
         UUID organizerId,
-        EventStatus status
+        EventStatus status,
+        double price
 ) {
     public Event {
         Objects.requireNonNull(id, "id must not be null");
@@ -45,5 +46,9 @@ public record Event(
         if (availableTickets < 0 || availableTickets > capacity) {
             throw new IllegalArgumentException("availableTickets must be between 0 and capacity");
         }
+        if (price < 0) {
+            throw new IllegalArgumentException("price must be zero or greater");
+        }
     }
 }
+

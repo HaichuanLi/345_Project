@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToResult(LoginResult result) {
         Intent intent = new Intent(this, ResultActivity.class);
+        intent.putExtra(ResultActivity.EXTRA_USER_ID, result.userId().toString());
         intent.putExtra(ResultActivity.EXTRA_NAME, result.name());
         intent.putExtra(ResultActivity.EXTRA_EMAIL, result.email());
         intent.putExtra(ResultActivity.EXTRA_PHONE, result.phone());
