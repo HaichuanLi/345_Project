@@ -12,11 +12,12 @@ public class LoginController {
     }
 
     public LoginResponse login(LoginRequest request) {
-        LoginResult result = loginUseCase.login(new LoginCommand(request.email(), request.password()));
+        LoginResult result = loginUseCase.login(new LoginCommand(request.identifier(), request.password()));
         return new LoginResponse(
                 result.userId().toString(),
                 result.name(),
                 result.email(),
+                result.phone(),
                 result.role().name()
         );
     }

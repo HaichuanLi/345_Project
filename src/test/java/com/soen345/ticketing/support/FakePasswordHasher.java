@@ -9,6 +9,11 @@ public class FakePasswordHasher implements PasswordHasher {
     private final Map<String, Boolean> matchResults = new HashMap<>();
 
     @Override
+    public String hash(String rawPassword) {
+        return "HASH_" + rawPassword;
+    }
+
+    @Override
     public boolean matches(String rawPassword, String passwordHash) {
         return matchResults.getOrDefault(key(rawPassword, passwordHash), false);
     }

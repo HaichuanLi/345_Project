@@ -9,6 +9,8 @@ import com.soen345.ticketing.domain.user.User;
 import com.soen345.ticketing.domain.user.UserRepository;
 import com.soen345.ticketing.domain.user.UserStatus;
 
+import java.util.Optional;
+
 public class LoginUseCase {
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
@@ -27,19 +29,26 @@ public class LoginUseCase {
     public LoginResult login(LoginCommand command) {
         validator.validate(command);
 
-        String normalizedEmail = command.email().trim().toLowerCase();
-        User user = userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
+        String identifier = command.identifier().trim();
+        User user = findUser(identifier)
+                .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
 
         if (user.status() != UserStatus.ACTIVE) {
             throw new AuthenticationException("User account is not active");
         }
 
-        boolean passwordMatches = passwordHasher.matches(command.password(), user.passwordHash());
-        if (!passwordMatches) {
-            throw new AuthenticationException("Invalid email or password");
+        if (!passwordHasher.matches(command.password(), user.passwordHash())) {
+            throw new AuthenticationException("Invalid credentials");
         }
 
-        return new LoginResult(user.id(), user.name(), user.email(), user.role());
+        return new LoginResult(user.id(), user.name(), user.email(), user.phone(), user.role());
+    }
+
+    private Optional<User> findUser(String identifier) {
+        if (LoginRequestValidator.isEmail(identifier)) {
+            return userRepository.findByEmail(identifier.toLowerCase());
+        } else {
+            return userRepository.findByPhone(identifier);
+        }
     }
 }
