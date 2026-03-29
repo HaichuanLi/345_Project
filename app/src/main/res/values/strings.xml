@@ -70,4 +70,27 @@
     <string name="confirmation_reserved_at">Reserved At</string>
     <string name="confirmation_missing_reservation">Missing reservation information.</string>
     <string name="confirmation_not_found">Reservation confirmation not found.</string>
+
+    <!-- Admin Event Management -->
+    <string name="add_event_button">Add Event</string>
+    <string name="add_event_title">Add New Event</string>
+    <string name="edit_event_title">Edit Event</string>
+    <string name="edit_event_button">Edit Event</string>
+    <string name="cancel_event_button">Cancel Event</string>
+    <string name="save_event_button">Save</string>
+    <string name="event_title_hint">Event Title</string>
+    <string name="event_code_hint">Event Code</string>
+    <string name="event_category_hint">Category</string>
+    <string name="event_location_hint">Location</string>
+    <string name="event_description_hint">Description</string>
+    <string name="event_price_hint">Price</string>
+    <string name="event_seats_hint">Available Seats</string>
+    <string name="event_start_time_hint">Start Time</string>
+    <string name="event_end_time_hint">End Time</string>
+    <string name="cancel_event_confirm_title">Cancel Event</string>
+    <string name="cancel_event_confirm_message">Are you sure you want to cancel this event? This action is irreversible.</string>
+    <string name="cancel_event_confirm_yes">Yes, Cancel</string>
+    <string name="cancel_event_confirm_no">No</string>
+    <string name="event_cancelled_label">CANCELLED</string>
+    <string name="event_cancelled_message">This event has been cancelled.</string>
 </resources>

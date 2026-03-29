@@ -35,6 +35,7 @@ public class ResultActivity extends AppCompatActivity {
         binding.viewEventsButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, EventListActivity.class);
             intent.putExtra(EventListActivity.EXTRA_USER_ID, userId);
+            intent.putExtra(EventListActivity.EXTRA_ROLE, role);
             startActivity(intent);
         });
 
