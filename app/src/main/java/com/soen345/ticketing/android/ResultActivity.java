@@ -39,6 +39,12 @@ public class ResultActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        binding.viewRegisteredEventsButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, RegisteredEventsActivity.class);
+            intent.putExtra(RegisteredEventsActivity.EXTRA_USER_ID, userId);
+            startActivity(intent);
+        });
+
         binding.logoutButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/registered_event_details_title"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium" />
+
+        <TextView
+            android:id="@+id/eventName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/event_code_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/eventCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/event_category_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/eventCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/event_venue_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/eventVenue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/start_time_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/eventStartTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/end_time_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/eventEndTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/event_description_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/eventDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/tickets_purchased_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/ticketsPurchased"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/total_price_label"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge" />
+
+        <TextView
+            android:id="@+id/totalPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+        <Button
+            android:id="@+id/cancelReservationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#F44336"
+            android:text="@string/cancel_reservation_button"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/back_button" />
+
+    </LinearLayout>
+</ScrollView>
