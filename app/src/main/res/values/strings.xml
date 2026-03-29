@@ -70,6 +70,7 @@
     <string name="confirmation_reserved_at">Reserved At</string>
     <string name="confirmation_missing_reservation">Missing reservation information.</string>
     <string name="confirmation_not_found">Reservation confirmation not found.</string>
+    <string name="sms_app_not_available">No SMS app is available on this device.</string>
 
     <!-- Admin Event Management -->
     <string name="add_event_button">Add Event</string>
