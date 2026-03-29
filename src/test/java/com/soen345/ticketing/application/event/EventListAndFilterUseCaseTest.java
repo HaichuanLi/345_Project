@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,7 +252,8 @@ class EventListAndFilterUseCaseTest {
                     100,
                     100,
                     organizerId,
-                    EventStatus.DRAFT
+                    EventStatus.DRAFT,
+                    0.0
             );
             Event soldOutEvent = new Event(
                     UUID.randomUUID(),
@@ -265,7 +267,8 @@ class EventListAndFilterUseCaseTest {
                     100,
                     0,
                     organizerId,
-                    EventStatus.PUBLISHED
+                    EventStatus.PUBLISHED,
+                    0.0
             );
 
             events.put(draftEvent.id(), draftEvent);
@@ -281,6 +284,11 @@ class EventListAndFilterUseCaseTest {
         public Event save(Event event) {
             events.put(event.id(), event);
             return event;
+        }
+
+        @Override
+        public List<Event> listAll() {
+            return new ArrayList<>(events.values());
         }
 
         @Override
