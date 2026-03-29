@@ -93,14 +93,21 @@ public class AddEventActivity extends AppCompatActivity {
                 organizerId
         );
 
-        try {
-            AddEventUseCase useCase = new AddEventUseCase(
-                    TicketingDataProvider.eventRepository(this)
-            );
-            useCase.execute(command);
-            finish();
-        } catch (ValidationException e) {
-            binding.errorText.setText(e.getMessage());
-        }
+        binding.saveButton.setEnabled(false);
+
+        new Thread(() -> {
+            try {
+                AddEventUseCase useCase = new AddEventUseCase(
+                        TicketingDataProvider.eventRepository(this)
+                );
+                useCase.execute(command);
+                runOnUiThread(this::finish);
+            } catch (ValidationException e) {
+                runOnUiThread(() -> {
+                    binding.saveButton.setEnabled(true);
+                    binding.errorText.setText(e.getMessage());
+                });
+            }
+        }).start();
     }
 }
