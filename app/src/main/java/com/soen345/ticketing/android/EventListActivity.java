@@ -1,6 +1,7 @@
 package com.soen345.ticketing.android;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,7 +15,9 @@ import com.soen345.ticketing.android.databinding.ActivityEventListBinding;
 import com.soen345.ticketing.application.usecase.event.FilterEventsUseCase;
 import com.soen345.ticketing.application.usecase.event.ListEventsUseCase;
 import com.soen345.ticketing.domain.event.Event;
-import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryEventRepository;
+import com.soen345.ticketing.domain.event.EventRepository;
+
+import java.util.UUID;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,10 +27,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class EventListActivity extends AppCompatActivity {
+    public static final String EXTRA_USER_ID = "extra_user_id";
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private ActivityEventListBinding binding;
     private EventListAdapter adapter;
+    private EventRepository eventRepository;
     private FilterEventsUseCase filterEventsUseCase;
     private List<Event> allEvents = new ArrayList<>();
     private LocalDate selectedDate;
@@ -38,14 +44,22 @@ public class EventListActivity extends AppCompatActivity {
         binding = ActivityEventListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        InMemoryEventRepository eventRepository = new InMemoryEventRepository();
+        String userId = getIntent().getStringExtra(EXTRA_USER_ID);
+        if (userId == null || userId.isBlank()) {
+            userId = UUID.randomUUID().toString();
+        }
+        final String loggedInUserId = userId;
+
+        eventRepository = TicketingDataProvider.eventRepository(this);
         ListEventsUseCase listEventsUseCase = new ListEventsUseCase(eventRepository);
         filterEventsUseCase = new FilterEventsUseCase();
         allEvents = listEventsUseCase.listAvailableEvents();
 
         adapter = new EventListAdapter(allEvents, event -> {
-            // Handle event click - for now just a placeholder
-            // TODO: Navigate to event details page (TR-FR-007)
+            Intent intent = new Intent(this, EventDetailsActivity.class);
+            intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, event.id().toString());
+            intent.putExtra(EventDetailsActivity.EXTRA_USER_ID, loggedInUserId);
+            startActivity(intent);
         });
 
         binding.eventsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -58,6 +72,18 @@ public class EventListActivity extends AppCompatActivity {
 
         applyFilters();
         binding.backButton.setOnClickListener(view -> finish());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshEvents();
+    }
+
+    private void refreshEvents() {
+        ListEventsUseCase listEventsUseCase = new ListEventsUseCase(eventRepository);
+        allEvents = listEventsUseCase.listAvailableEvents();
+        applyFilters();
     }
 
     private void showDatePicker() {

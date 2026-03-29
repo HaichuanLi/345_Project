@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ticketing Demo</string>
+    <string name="back_button">Back</string>
 
     <!-- Login -->
     <string name="login_title">Ticket Reservation Login</string>
@@ -47,4 +48,28 @@
     <string name="apply_filters_button">Apply Filters</string>
     <string name="clear_filters_button">Clear Filters</string>
     <string name="no_events_match_filters">No events match the selected filters.</string>
+    <string name="event_details_title">Event Details</string>
+    <string name="event_category_label">Category</string>
+    <string name="event_venue_label">Location</string>
+    <string name="event_description_label">Full Description</string>
+    <string name="event_price_label">Price</string>
+    <string name="event_tickets_left_label">Tickets Left</string>
+    <string name="event_order_total_label">Order Total</string>
+    <string name="event_reserve_button">Reserve Ticket</string>
+    <string name="event_details_quantity_hint">Number of tickets to order</string>
+    <string name="event_details_quantity_error_min">Enter at least 1 ticket.</string>
+    <string name="event_details_quantity_error_max">Only %1$d tickets are available.</string>
+    <string name="event_details_not_found">This event was not found.</string>
+    <string name="event_details_missing_event">Missing event information.</string>
+    <string name="reservation_failed_message">Reservation failed. Please try again.</string>
+    <string name="reservation_email_sent">Confirmation email sent to %1$s</string>
+    <string name="reservation_email_failed">Unable to send confirmation email. Check SMTP settings.</string>
+    <string name="confirmation_title">Reservation Confirmation</string>
+    <string name="confirmation_reservation_id">Reservation ID</string>
+    <string name="confirmation_event_details">Event Details</string>
+    <string name="confirmation_event_title">Event Name</string>
+    <string name="confirmation_tickets_reserved">Number of Tickets Reserved</string>
+    <string name="confirmation_reserved_at">Reserved At</string>
+    <string name="confirmation_missing_reservation">Missing reservation information.</string>
+    <string name="confirmation_not_found">Reservation confirmation not found.</string>
 </resources>

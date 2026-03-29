@@ -27,5 +27,5 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Test core module
-        run: ./gradlew :core:test
+      - name: Run all tests
+        run: ./gradlew test --console=plain
