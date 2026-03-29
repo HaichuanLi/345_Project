@@ -29,3 +29,43 @@ jobs:
 
       - name: Run all tests
         run: ./gradlew test --console=plain
+
+      - name: Print test summary
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! find . -path '*/build/test-results/test/*.xml' -print -quit | grep -q .; then
+            echo "TEST SUMMARY: ran=0 passed=0 failed=0 skipped=0"
+            exit 0
+          fi
+
+          awk '
+            /<testsuite / {
+              for (i = 1; i <= NF; i++) {
+                if ($i ~ /^tests=/) {
+                  gsub(/[^0-9]/, "", $i)
+                  ran += $i
+                }
+                if ($i ~ /^failures=/) {
+                  gsub(/[^0-9]/, "", $i)
+                  failed += $i
+                }
+                if ($i ~ /^errors=/) {
+                  gsub(/[^0-9]/, "", $i)
+                  errors += $i
+                }
+                if ($i ~ /^skipped=/) {
+                  gsub(/[^0-9]/, "", $i)
+                  skipped += $i
+                }
+              }
+            }
+            END {
+              total_failed = failed + errors
+              passed = ran - total_failed - skipped
+              if (passed < 0) passed = 0
+              printf("TEST SUMMARY: ran=%d passed=%d failed=%d skipped=%d\n", ran, passed, total_failed, skipped)
+            }
+          ' $(find . -path '*/build/test-results/test/*.xml')
