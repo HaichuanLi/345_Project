@@ -13,11 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.soen345.ticketing.android.adapter.EventListAdapter;
 import com.soen345.ticketing.android.databinding.ActivityEventListBinding;
 import com.soen345.ticketing.application.usecase.event.FilterEventsUseCase;
-import com.soen345.ticketing.application.usecase.event.ListEventsUseCase;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventRepository;
-
-import java.util.UUID;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,9 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 public class EventListActivity extends AppCompatActivity {
     public static final String EXTRA_USER_ID = "extra_user_id";
+    public static final String EXTRA_ROLE = "extra_role";
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -37,6 +36,9 @@ public class EventListActivity extends AppCompatActivity {
     private FilterEventsUseCase filterEventsUseCase;
     private List<Event> allEvents = new ArrayList<>();
     private LocalDate selectedDate;
+    private String loggedInUserId;
+    private String userRole;
+    private boolean isAdmin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +50,19 @@ public class EventListActivity extends AppCompatActivity {
         if (userId == null || userId.isBlank()) {
             userId = UUID.randomUUID().toString();
         }
-        final String loggedInUserId = userId;
+        loggedInUserId = userId;
+        userRole = getIntent().getStringExtra(EXTRA_ROLE);
+        isAdmin = "ADMIN".equals(userRole);
 
         eventRepository = TicketingDataProvider.eventRepository(this);
-        ListEventsUseCase listEventsUseCase = new ListEventsUseCase(eventRepository);
         filterEventsUseCase = new FilterEventsUseCase();
-        allEvents = listEventsUseCase.listAvailableEvents();
+        loadEvents();
 
         adapter = new EventListAdapter(allEvents, event -> {
             Intent intent = new Intent(this, EventDetailsActivity.class);
             intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, event.id().toString());
             intent.putExtra(EventDetailsActivity.EXTRA_USER_ID, loggedInUserId);
+            intent.putExtra(EventDetailsActivity.EXTRA_ROLE, userRole);
             startActivity(intent);
         });
 
@@ -69,9 +73,18 @@ public class EventListActivity extends AppCompatActivity {
 
         binding.filterDateInput.setOnClickListener(view -> showDatePicker());
         binding.clearFiltersButton.setOnClickListener(view -> clearFilters());
+        binding.backButton.setOnClickListener(view -> finish());
+
+        if (isAdmin) {
+            binding.addEventButton.setVisibility(View.VISIBLE);
+            binding.addEventButton.setOnClickListener(view -> {
+                Intent intent = new Intent(this, AddEventActivity.class);
+                intent.putExtra(AddEventActivity.EXTRA_USER_ID, loggedInUserId);
+                startActivity(intent);
+            });
+        }
 
         applyFilters();
-        binding.backButton.setOnClickListener(view -> finish());
     }
 
     @Override
@@ -80,9 +93,13 @@ public class EventListActivity extends AppCompatActivity {
         refreshEvents();
     }
 
+    private void loadEvents() {
+        allEvents = eventRepository.listAll();
+    }
+
     private void refreshEvents() {
-        ListEventsUseCase listEventsUseCase = new ListEventsUseCase(eventRepository);
-        allEvents = listEventsUseCase.listAvailableEvents();
+        loadEvents();
+        setupFilterDropdowns();
         applyFilters();
     }
 
@@ -186,4 +203,3 @@ public class EventListActivity extends AppCompatActivity {
         binding.filterCategoryInput.setOnItemSelectedListener(listener);
     }
 }
-

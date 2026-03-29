@@ -10,4 +10,6 @@ public interface EventRepository {
     Event save(Event event);
 
     List<Event> listAvailable();
+
+    List<Event> listAll();
 }

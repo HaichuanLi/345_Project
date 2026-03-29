@@ -19,10 +19,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    testLogging {
-        events("passed", "failed", "skipped")
-        showStandardStreams = false
-    }
 }
 
 tasks.withType<JavaCompile>().configureEach {
