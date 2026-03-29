@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -56,6 +57,7 @@ public class EventListActivity extends AppCompatActivity {
 
         eventRepository = TicketingDataProvider.eventRepository(this);
         filterEventsUseCase = new FilterEventsUseCase();
+        allEvents = new ArrayList<>();
         loadEvents();
 
         adapter = new EventListAdapter(allEvents, event -> {
@@ -94,13 +96,37 @@ public class EventListActivity extends AppCompatActivity {
     }
 
     private void loadEvents() {
-        allEvents = eventRepository.listAll();
+        new Thread(() -> {
+            try {
+                List<Event> events = eventRepository.listAll();
+                runOnUiThread(() -> {
+                    allEvents = events;
+                    setupFilterDropdowns();
+                    applyFilters();
+                });
+            } catch (Exception e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Failed to load events", Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 
     private void refreshEvents() {
-        loadEvents();
-        setupFilterDropdowns();
-        applyFilters();
+        new Thread(() -> {
+            try {
+                List<Event> events = eventRepository.listAll();
+                runOnUiThread(() -> {
+                    allEvents = events;
+                    setupFilterDropdowns();
+                    applyFilters();
+                });
+            } catch (Exception e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Failed to refresh events", Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 
     private void showDatePicker() {

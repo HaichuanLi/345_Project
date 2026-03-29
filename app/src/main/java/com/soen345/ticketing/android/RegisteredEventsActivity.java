@@ -3,6 +3,7 @@ package com.soen345.ticketing.android;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,13 +56,24 @@ public class RegisteredEventsActivity extends AppCompatActivity {
     }
 
     private void loadReservations() {
-        GetUserReservationsUseCase useCase = new GetUserReservationsUseCase(
-                TicketingDataProvider.reservationRepository(this),
-                TicketingDataProvider.eventRepository(this)
-        );
-
-        List<UserReservationDTO> reservations = useCase.execute(userId);
-        adapter.updateReservations(reservations);
-        binding.emptyStateText.setVisibility(reservations.isEmpty() ? View.VISIBLE : View.GONE);
+        new Thread(() -> {
+            try {
+                GetUserReservationsUseCase useCase = new GetUserReservationsUseCase(
+                        TicketingDataProvider.reservationRepository(this),
+                        TicketingDataProvider.eventRepository(this)
+                );
+                List<UserReservationDTO> reservations = useCase.execute(userId);
+                runOnUiThread(() -> {
+                    adapter.updateReservations(reservations);
+                    binding.emptyStateText.setVisibility(
+                            reservations.isEmpty() ? View.VISIBLE : View.GONE
+                    );
+                });
+            } catch (Exception e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Failed to load reservations", Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 }
