@@ -93,4 +93,19 @@
     <string name="cancel_event_confirm_no">No</string>
     <string name="event_cancelled_label">CANCELLED</string>
     <string name="event_cancelled_message">This event has been cancelled.</string>
+
+    <!-- Registered Events -->
+    <string name="view_registered_events_button">View Registered Events</string>
+    <string name="registered_events_title">My Registered Events</string>
+    <string name="no_registered_events">You have no registered events.</string>
+    <string name="registered_event_details_title">Reservation Details</string>
+    <string name="registered_event_details_missing">Missing reservation information.</string>
+    <string name="registered_event_details_not_found">Reservation not found.</string>
+    <string name="tickets_purchased_label">Tickets Purchased</string>
+    <string name="total_price_label">Total Price</string>
+    <string name="cancel_reservation_button">Cancel Reservation</string>
+    <string name="cancel_reservation_confirm_title">Cancel Reservation</string>
+    <string name="cancel_reservation_confirm_message">Are you sure? This action cannot be undone.</string>
+    <string name="cancel_reservation_confirm_yes">Yes, Cancel</string>
+    <string name="cancel_reservation_confirm_no">No</string>
 </resources>
