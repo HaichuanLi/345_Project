@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "194558225707",
+    "project_id": "soen345-1225d",
+    "storage_bucket": "soen345-1225d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194558225707:android:5ec9e8335cb5f31fcd696e",
+        "android_client_info": {
+          "package_name": "com.soen345.ticketing.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4K-jkOzvGw9zU_raOQiV5LsLLkZNhf2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

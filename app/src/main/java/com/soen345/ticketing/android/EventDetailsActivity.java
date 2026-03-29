@@ -86,55 +86,70 @@ public class EventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        ViewEventDetailsUseCase viewEventDetailsUseCase =
-                new ViewEventDetailsUseCase(TicketingDataProvider.eventRepository(this));
+        new Thread(() -> {
+            try {
+                ViewEventDetailsUseCase viewEventDetailsUseCase =
+                        new ViewEventDetailsUseCase(TicketingDataProvider.eventRepository(this));
 
-        var eventDetailsOptional = viewEventDetailsUseCase.getEventDetails(eventId);
-        if (eventDetailsOptional.isEmpty()) {
-            Toast.makeText(this, getString(R.string.event_details_not_found), Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+                var eventDetailsOptional = viewEventDetailsUseCase.getEventDetails(eventId);
+                if (eventDetailsOptional.isEmpty()) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, getString(R.string.event_details_not_found), Toast.LENGTH_LONG).show();
+                        finish();
+                    });
+                    return;
+                }
 
-        var eventDetails = eventDetailsOptional.get();
-        ticketsLeft = eventDetails.ticketsLeft();
-        price = eventDetails.pricePerTicket();
+                var eventDetails = eventDetailsOptional.get();
+                Event event = TicketingDataProvider.eventRepository(this).findById(eventId).orElse(null);
+                boolean isCancelled = event != null && event.status() == EventStatus.CANCELLED;
 
-        binding.eventTitle.setText(nonEmpty(eventDetails.eventName()));
-        binding.eventCode.setText(nonEmpty(eventDetails.eventCode()));
-        binding.eventCategory.setText(nonEmpty(eventDetails.category()));
-        binding.eventVenue.setText(nonEmpty(eventDetails.venue()));
-        binding.eventStartTime.setText(formatDateTime(eventDetails.startDateTime().toString()));
-        binding.eventEndTime.setText(formatDateTime(eventDetails.endDateTime().toString()));
-        binding.eventDescription.setText(nonEmpty(eventDetails.fullDescription()));
+                runOnUiThread(() -> {
+                    ticketsLeft = eventDetails.ticketsLeft();
+                    price = eventDetails.pricePerTicket();
 
-        binding.availableSeats.setText(String.valueOf(eventDetails.totalCapacity()));
-        binding.ticketsLeft.setText(String.valueOf(ticketsLeft));
-        binding.price.setText(formatMoney(price));
+                    binding.eventTitle.setText(nonEmpty(eventDetails.eventName()));
+                    binding.eventCode.setText(nonEmpty(eventDetails.eventCode()));
+                    binding.eventCategory.setText(nonEmpty(eventDetails.category()));
+                    binding.eventVenue.setText(nonEmpty(eventDetails.venue()));
+                    binding.eventStartTime.setText(formatDateTime(eventDetails.startDateTime().toString()));
+                    binding.eventEndTime.setText(formatDateTime(eventDetails.endDateTime().toString()));
+                    binding.eventDescription.setText(nonEmpty(eventDetails.fullDescription()));
+                    binding.availableSeats.setText(String.valueOf(eventDetails.totalCapacity()));
+                    binding.ticketsLeft.setText(String.valueOf(ticketsLeft));
+                    binding.price.setText(formatMoney(price));
+                    binding.ticketQuantityInput.setHint(getString(R.string.event_details_quantity_hint));
+                    updateOrderTotal();
 
-        binding.ticketQuantityInput.setHint(getString(R.string.event_details_quantity_hint));
-        updateOrderTotal();
-
-        // Check if event is cancelled
-        Event event = TicketingDataProvider.eventRepository(this).findById(eventId).orElse(null);
-        boolean isCancelled = event != null && event.status() == EventStatus.CANCELLED;
-
-        if (isCancelled) {
-            binding.cancelledBanner.setVisibility(View.VISIBLE);
-            binding.reserveTicketButton.setVisibility(View.GONE);
-            binding.ticketQuantityInput.setVisibility(View.GONE);
-            binding.cancelEventButton.setVisibility(View.GONE);
-            binding.editEventButton.setVisibility(View.GONE);
-        } else if (isAdmin) {
-            binding.cancelEventButton.setVisibility(View.VISIBLE);
-            binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
-            binding.editEventButton.setVisibility(View.VISIBLE);
-            binding.editEventButton.setOnClickListener(v -> {
-                Intent intent = new Intent(this, EditEventActivity.class);
-                intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId.toString());
-                startActivity(intent);
-            });
-        }
+                    if (isCancelled) {
+                        binding.cancelledBanner.setVisibility(View.VISIBLE);
+                        binding.reserveTicketButton.setVisibility(View.GONE);
+                        binding.ticketQuantityInput.setVisibility(View.GONE);
+                        binding.cancelEventButton.setVisibility(View.GONE);
+                        binding.editEventButton.setVisibility(View.GONE);
+                    } else if (isAdmin) {
+                        boolean isOrganizer = event != null && event.organizerId().equals(userId);
+                        if (isOrganizer) {
+                            binding.cancelEventButton.setVisibility(View.VISIBLE);
+                            binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
+                            binding.editEventButton.setVisibility(View.VISIBLE);
+                            binding.editEventButton.setOnClickListener(v -> {
+                                Intent intent = new Intent(this, EditEventActivity.class);
+                                intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId.toString());
+                                startActivity(intent);
+                            });
+                        } else {
+                            binding.cancelEventButton.setVisibility(View.GONE);
+                            binding.editEventButton.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, getString(R.string.event_details_not_found), Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
     }
 
     private void showCancelConfirmation() {
@@ -149,15 +164,19 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void cancelEvent() {
-        try {
-            CancelEventUseCase cancelUseCase = new CancelEventUseCase(
-                    TicketingDataProvider.eventRepository(this)
-            );
-            cancelUseCase.execute(eventId);
-            finish();
-        } catch (ValidationException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        new Thread(() -> {
+            try {
+                CancelEventUseCase cancelUseCase = new CancelEventUseCase(
+                        TicketingDataProvider.eventRepository(this)
+                );
+                cancelUseCase.execute(eventId);
+                runOnUiThread(this::finish);
+            } catch (ValidationException e) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
     }
 
     private void setupOrderForm() {
@@ -189,39 +208,42 @@ public class EventDetailsActivity extends AppCompatActivity {
             binding.ticketQuantityInput.setError(getString(R.string.event_details_quantity_error_min));
             return;
         }
-
         if (quantity > ticketsLeft) {
             binding.ticketQuantityInput.setError(getString(R.string.event_details_quantity_error_max, ticketsLeft));
             return;
         }
 
-        try {
-            ReserveTicketsUseCase reserveTicketsUseCase = new ReserveTicketsUseCase(
-                    TicketingDataProvider.eventRepository(this),
-                    TicketingDataProvider.reservationRepository(this),
-                    TicketingDataProvider.confirmationService(this),
-                    new ReserveTicketsValidator()
-            );
-
-            ReservationConfirmation confirmation = reserveTicketsUseCase.reserve(
-                    new ReserveTicketsCommand(userId, eventId, quantity)
-            );
-
-            Intent confirmationIntent = new Intent(this, ReservationConfirmationActivity.class);
-            confirmationIntent.putExtra(
-                    ReservationConfirmationActivity.EXTRA_RESERVATION_ID,
-                    confirmation.reservationId().toString()
-            );
-            startActivity(confirmationIntent);
-            finish();
-        } catch (InsufficientSeatsException ex) {
-            binding.ticketQuantityInput.setError(getString(
-                    R.string.event_details_quantity_error_max,
-                    ex.getAvailableSeats()
-            ));
-        } catch (RuntimeException ex) {
-            Toast.makeText(this, getString(R.string.reservation_failed_message), Toast.LENGTH_LONG).show();
-        }
+        new Thread(() -> {
+            try {
+                ReserveTicketsUseCase reserveTicketsUseCase = new ReserveTicketsUseCase(
+                        TicketingDataProvider.eventRepository(this),
+                        TicketingDataProvider.reservationRepository(this),
+                        TicketingDataProvider.confirmationService(this),
+                        new ReserveTicketsValidator()
+                );
+                ReservationConfirmation confirmation = reserveTicketsUseCase.reserve(
+                        new ReserveTicketsCommand(userId, eventId, quantity)
+                );
+                runOnUiThread(() -> {
+                    Intent confirmationIntent = new Intent(this, ReservationConfirmationActivity.class);
+                    confirmationIntent.putExtra(
+                            ReservationConfirmationActivity.EXTRA_RESERVATION_ID,
+                            confirmation.reservationId().toString()
+                    );
+                    startActivity(confirmationIntent);
+                    finish();
+                });
+            } catch (InsufficientSeatsException ex) {
+                runOnUiThread(() ->
+                        binding.ticketQuantityInput.setError(getString(
+                                R.string.event_details_quantity_error_max, ex.getAvailableSeats()))
+                );
+            } catch (RuntimeException ex) {
+                runOnUiThread(() ->
+                        Toast.makeText(this, getString(R.string.reservation_failed_message), Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
     }
 
     private int parseQuantity() {
