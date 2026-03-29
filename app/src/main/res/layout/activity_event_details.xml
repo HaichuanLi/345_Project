@@ -162,12 +162,43 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
+        <TextView
+            android:id="@+id/cancelledBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#F44336"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="@string/event_cancelled_message"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/reserveTicketButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/event_reserve_button" />
+
+        <Button
+            android:id="@+id/cancelEventButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#F44336"
+            android:text="@string/cancel_event_button"
+            android:textColor="@android:color/white"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/editEventButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/edit_event_button"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/backButton"

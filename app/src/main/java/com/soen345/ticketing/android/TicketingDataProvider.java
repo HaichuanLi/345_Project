@@ -2,7 +2,6 @@ package com.soen345.ticketing.android;
 
 import android.content.Context;
 
-import com.soen345.ticketing.application.reservation.ReservationEmailService;
 import com.soen345.ticketing.application.reservation.ReservationConfirmationService;
 import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.reservation.ReservationRepository;
@@ -18,7 +17,6 @@ public final class TicketingDataProvider {
     private static EventRepository eventRepository;
     private static ReservationRepository reservationRepository;
     private static ReservationConfirmationService confirmationService;
-    private static ReservationEmailService reservationEmailService;
 
     private TicketingDataProvider() {
     }
@@ -38,16 +36,8 @@ public final class TicketingDataProvider {
         return confirmationService;
     }
 
-    public static synchronized ReservationEmailService reservationEmailService(Context context) {
-        ensureInitialized(context);
-        return reservationEmailService;
-    }
-
     private static void ensureInitialized(Context context) {
-        if (eventRepository != null
-                && reservationRepository != null
-                && confirmationService != null
-                && reservationEmailService != null) {
+        if (eventRepository != null && reservationRepository != null && confirmationService != null) {
             return;
         }
 
@@ -56,14 +46,5 @@ public final class TicketingDataProvider {
 
         File storageDir = new File(context.getFilesDir(), CONFIRMATION_DIR);
         confirmationService = new FileBasedReservationConfirmationService(storageDir.getAbsolutePath());
-
-        reservationEmailService = new SmtpReservationEmailService(
-            BuildConfig.SMTP_HOST,
-            BuildConfig.SMTP_PORT,
-            BuildConfig.SMTP_USERNAME,
-            BuildConfig.SMTP_PASSWORD,
-            BuildConfig.SMTP_FROM,
-            BuildConfig.SMTP_TLS
-        );
     }
 }

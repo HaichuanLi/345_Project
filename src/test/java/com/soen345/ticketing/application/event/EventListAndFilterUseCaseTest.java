@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -283,6 +284,11 @@ class EventListAndFilterUseCaseTest {
         public Event save(Event event) {
             events.put(event.id(), event);
             return event;
+        }
+
+        @Override
+        public List<Event> listAll() {
+            return new ArrayList<>(events.values());
         }
 
         @Override

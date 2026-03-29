@@ -36,10 +36,6 @@ public final class FakeAuthFactory {
         return REGISTER_USE_CASE;
     }
 
-    public static UserRepository userRepository() {
-        return USER_REPOSITORY;
-    }
-
     private static LoginUseCase createLoginUseCase() {
         return new LoginUseCase(USER_REPOSITORY, PASSWORD_HASHER, new LoginRequestValidator());
     }
