@@ -147,6 +147,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                     new ReserveTicketsCommand(userId, eventId, quantity)
             );
 
+                sendReservationEmail(confirmation);
+
             Intent confirmationIntent = new Intent(this, ReservationConfirmationActivity.class);
             confirmationIntent.putExtra(
                     ReservationConfirmationActivity.EXTRA_RESERVATION_ID,
@@ -162,6 +164,33 @@ public class EventDetailsActivity extends AppCompatActivity {
         } catch (RuntimeException ex) {
             Toast.makeText(this, getString(R.string.reservation_failed_message), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void sendReservationEmail(ReservationConfirmation confirmation) {
+        FakeAuthFactory.userRepository()
+                .findById(userId)
+                .map(user -> user.email())
+                .filter(email -> email != null && !email.isBlank())
+                .ifPresent(email -> {
+                new Thread(() -> {
+                try {
+                    TicketingDataProvider.reservationEmailService(this)
+                        .sendReservationConfirmation(email, confirmation);
+
+                    runOnUiThread(() -> Toast.makeText(
+                        this,
+                        getString(R.string.reservation_email_sent, email),
+                        Toast.LENGTH_LONG
+                    ).show());
+                } catch (RuntimeException ex) {
+                    runOnUiThread(() -> Toast.makeText(
+                        this,
+                        getString(R.string.reservation_email_failed),
+                        Toast.LENGTH_LONG
+                    ).show());
+                }
+                }).start();
+                });
     }
 
     private int parseQuantity() {

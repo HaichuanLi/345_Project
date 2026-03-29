@@ -251,7 +251,8 @@ class EventListAndFilterUseCaseTest {
                     100,
                     100,
                     organizerId,
-                    EventStatus.DRAFT
+                    EventStatus.DRAFT,
+                    0.0
             );
             Event soldOutEvent = new Event(
                     UUID.randomUUID(),
@@ -265,7 +266,8 @@ class EventListAndFilterUseCaseTest {
                     100,
                     0,
                     organizerId,
-                    EventStatus.PUBLISHED
+                    EventStatus.PUBLISHED,
+                    0.0
             );
 
             events.put(draftEvent.id(), draftEvent);
