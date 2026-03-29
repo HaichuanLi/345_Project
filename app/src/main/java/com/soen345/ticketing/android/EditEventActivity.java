@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.soen345.ticketing.android.databinding.ActivityAddEventBinding;
 import com.soen345.ticketing.application.auth.ValidationException;
+import com.soen345.ticketing.application.event.AdminEventAccessPolicy;
 import com.soen345.ticketing.application.event.EditEventCommand;
 import com.soen345.ticketing.application.usecase.event.EditEventUseCase;
 import com.soen345.ticketing.domain.event.Event;
@@ -20,13 +21,16 @@ import java.util.UUID;
 
 public class EditEventActivity extends AppCompatActivity {
     public static final String EXTRA_EVENT_ID = "extra_event_id";
+    public static final String EXTRA_USER_ID = "extra_user_id";
 
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private ActivityAddEventBinding binding;
     private UUID eventId;
+    private UUID loggedInUserId;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
+    private final AdminEventAccessPolicy adminEventAccessPolicy = new AdminEventAccessPolicy();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +41,26 @@ public class EditEventActivity extends AppCompatActivity {
         binding.pageTitle.setText(getString(R.string.edit_event_title));
 
         String eventIdRaw = getIntent().getStringExtra(EXTRA_EVENT_ID);
+        String userIdRaw = getIntent().getStringExtra(EXTRA_USER_ID);
         if (eventIdRaw == null || eventIdRaw.isBlank()) {
             Toast.makeText(this, getString(R.string.event_details_missing_event), Toast.LENGTH_LONG).show();
             finish();
             return;
         }
-        eventId = UUID.fromString(eventIdRaw);
+        if (userIdRaw == null || userIdRaw.isBlank()) {
+            Toast.makeText(this, getString(R.string.event_details_missing_event), Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        try {
+            eventId = UUID.fromString(eventIdRaw);
+            loggedInUserId = UUID.fromString(userIdRaw);
+        } catch (IllegalArgumentException ex) {
+            Toast.makeText(this, getString(R.string.event_details_missing_event), Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         prefillFields();
 
@@ -63,6 +81,12 @@ public class EditEventActivity extends AppCompatActivity {
             return;
         }
 
+        if (!adminEventAccessPolicy.canEditOrCancel(loggedInUserId, event)) {
+            Toast.makeText(this, "You can only modify events you created.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         binding.eventCodeInput.setText(event.eventCode());
         binding.eventTitleInput.setText(event.title());
         binding.eventCategoryInput.setText(event.category());
@@ -70,7 +94,6 @@ public class EditEventActivity extends AppCompatActivity {
         binding.eventDescriptionInput.setText(event.description());
         binding.eventPriceInput.setText(String.format(Locale.US, "%.2f", event.price()));
         binding.eventSeatsInput.setText(String.valueOf(event.capacity()));
-
         startDateTime = event.startDateTime();
         endDateTime = event.endDateTime();
         binding.startTimeInput.setText(startDateTime.format(DISPLAY_FORMAT));
