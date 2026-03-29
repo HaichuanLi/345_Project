@@ -53,28 +53,33 @@ public class EditEventActivity extends AppCompatActivity {
     }
 
     private void prefillFields() {
-        Event event = TicketingDataProvider.eventRepository(this)
-                .findById(eventId)
-                .orElse(null);
+        new Thread(() -> {
+            Event event = TicketingDataProvider.eventRepository(this)
+                    .findById(eventId)
+                    .orElse(null);
 
-        if (event == null) {
-            Toast.makeText(this, getString(R.string.event_details_not_found), Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+            if (event == null) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, getString(R.string.event_details_not_found), Toast.LENGTH_LONG).show();
+                    finish();
+                });
+                return;
+            }
 
-        binding.eventCodeInput.setText(event.eventCode());
-        binding.eventTitleInput.setText(event.title());
-        binding.eventCategoryInput.setText(event.category());
-        binding.eventLocationInput.setText(event.venue());
-        binding.eventDescriptionInput.setText(event.description());
-        binding.eventPriceInput.setText(String.format(Locale.US, "%.2f", event.price()));
-        binding.eventSeatsInput.setText(String.valueOf(event.capacity()));
-
-        startDateTime = event.startDateTime();
-        endDateTime = event.endDateTime();
-        binding.startTimeInput.setText(startDateTime.format(DISPLAY_FORMAT));
-        binding.endTimeInput.setText(endDateTime.format(DISPLAY_FORMAT));
+            runOnUiThread(() -> {
+                binding.eventCodeInput.setText(event.eventCode());
+                binding.eventTitleInput.setText(event.title());
+                binding.eventCategoryInput.setText(event.category());
+                binding.eventLocationInput.setText(event.venue());
+                binding.eventDescriptionInput.setText(event.description());
+                binding.eventPriceInput.setText(String.format(Locale.US, "%.2f", event.price()));
+                binding.eventSeatsInput.setText(String.valueOf(event.capacity()));
+                startDateTime = event.startDateTime();
+                endDateTime = event.endDateTime();
+                binding.startTimeInput.setText(startDateTime.format(DISPLAY_FORMAT));
+                binding.endTimeInput.setText(endDateTime.format(DISPLAY_FORMAT));
+            });
+        }).start();
     }
 
     private void pickDateTime(boolean isStart) {
@@ -130,15 +135,22 @@ public class EditEventActivity extends AppCompatActivity {
                 price
         );
 
-        try {
-            EditEventUseCase useCase = new EditEventUseCase(
-                    TicketingDataProvider.eventRepository(this),
-                    TicketingDataProvider.reservationRepository(this)
-            );
-            useCase.execute(command);
-            finish();
-        } catch (ValidationException e) {
-            binding.errorText.setText(e.getMessage());
-        }
+        binding.saveButton.setEnabled(false);
+
+        new Thread(() -> {
+            try {
+                EditEventUseCase useCase = new EditEventUseCase(
+                        TicketingDataProvider.eventRepository(this),
+                        TicketingDataProvider.reservationRepository(this)
+                );
+                useCase.execute(command);
+                runOnUiThread(this::finish);
+            } catch (ValidationException e) {
+                runOnUiThread(() -> {
+                    binding.saveButton.setEnabled(true);
+                    binding.errorText.setText(e.getMessage());
+                });
+            }
+        }).start();
     }
 }

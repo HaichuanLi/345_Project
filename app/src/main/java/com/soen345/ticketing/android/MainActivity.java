@@ -24,22 +24,32 @@ public class MainActivity extends AppCompatActivity {
 
         loginUseCase = FakeAuthFactory.loginUseCase();
 
+        TicketingDataProvider.seedEventsIfEmpty(this);
+
         binding.loginButton.setOnClickListener(view -> attemptLogin());
         binding.registerLink.setOnClickListener(view -> navigateToRegister());
     }
-
     private void attemptLogin() {
         String identifier = binding.identifierInput.getText().toString();
         String password = binding.passwordInput.getText().toString();
 
         binding.errorText.setText("");
+        binding.loginButton.setEnabled(false);
 
-        try {
-            LoginResult result = loginUseCase.login(new LoginCommand(identifier, password));
-            navigateToResult(result);
-        } catch (ValidationException | AuthenticationException exception) {
-            binding.errorText.setText(exception.getMessage());
-        }
+        new Thread(() -> {
+            try {
+                LoginResult result = loginUseCase.login(new LoginCommand(identifier, password));
+                runOnUiThread(() -> {
+                    binding.loginButton.setEnabled(true);
+                    navigateToResult(result);
+                });
+            } catch (ValidationException | AuthenticationException exception) {
+                runOnUiThread(() -> {
+                    binding.loginButton.setEnabled(true);
+                    binding.errorText.setText(exception.getMessage());
+                });
+            }
+        }).start();
     }
 
     private void navigateToResult(LoginResult result) {

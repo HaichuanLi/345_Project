@@ -42,6 +42,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void attemptRegister() {
         binding.errorText.setText("");
         binding.successText.setText("");
+        binding.registerButton.setEnabled(false);
 
         String name = binding.nameInput.getText().toString();
         String email = binding.emailInput.getText().toString();
@@ -51,18 +52,27 @@ public class RegisterActivity extends AppCompatActivity {
         Role role = getSelectedRole();
         if (role == null) {
             binding.errorText.setText(getString(R.string.error_select_role));
+            binding.registerButton.setEnabled(true);
             return;
         }
 
         String emailValue = email.isBlank() ? null : email;
         String phoneValue = phone.isBlank() ? null : phone;
 
-        try {
-            registerUseCase.register(new RegisterCommand(name, emailValue, phoneValue, password, role));
-            binding.successText.setText(getString(R.string.registration_success));
-        } catch (ValidationException exception) {
-            binding.errorText.setText(exception.getMessage());
-        }
+        new Thread(() -> {
+            try {
+                registerUseCase.register(new RegisterCommand(name, emailValue, phoneValue, password, role));
+                runOnUiThread(() -> {
+                    binding.registerButton.setEnabled(true);
+                    binding.successText.setText(getString(R.string.registration_success));
+                });
+            } catch (ValidationException exception) {
+                runOnUiThread(() -> {
+                    binding.registerButton.setEnabled(true);
+                    binding.errorText.setText(exception.getMessage());
+                });
+            }
+        }).start();
     }
 
     private Role getSelectedRole() {
