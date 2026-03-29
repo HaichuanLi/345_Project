@@ -42,6 +42,11 @@ public class ReserveTicketsUseCase {
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
+        // Reject reservations for cancelled events
+        if (event.status() == com.soen345.ticketing.domain.event.EventStatus.CANCELLED) {
+            throw new EventNotFoundException(command.eventId());
+        }
+
         // Check if sufficient seats are available
         if (command.quantity() > event.availableTickets()) {
             throw new InsufficientSeatsException(command.quantity(), event.availableTickets());

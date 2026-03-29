@@ -38,6 +38,14 @@ public class InMemoryEventRepository implements EventRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Event> listAll() {
+        return eventsById.values().stream()
+                .filter(event -> event.status() == EventStatus.PUBLISHED
+                        || event.status() == EventStatus.CANCELLED)
+                .collect(Collectors.toList());
+    }
+
     private void seedSampleEvents() {
         UUID organizerId = UUID.randomUUID();
 

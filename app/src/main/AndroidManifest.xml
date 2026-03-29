@@ -7,6 +7,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TicketingDemo">
         <activity
+            android:name=".AddEventActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditEventActivity"
+            android:exported="false" />
+        <activity
             android:name=".ReservationConfirmationActivity"
             android:exported="false" />
         <activity

@@ -1,10 +1,15 @@
 package com.soen345.ticketing.android.adapter;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.soen345.ticketing.android.databinding.ItemEventCardBinding;
 import com.soen345.ticketing.domain.event.Event;
+import com.soen345.ticketing.domain.event.EventStatus;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -61,8 +66,17 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             binding.eventEndTime.setText(event.endDateTime().format(TIME_FORMATTER));
             binding.availableSeats.setText(String.valueOf(event.availableTickets()));
 
-            itemView.setOnClickListener(v -> listener.onEventClick(event));
+            boolean cancelled = event.status() == EventStatus.CANCELLED;
+            binding.cancelledLabel.setVisibility(cancelled ? View.VISIBLE : View.GONE);
+            itemView.setAlpha(cancelled ? 0.5f : 1.0f);
+
+            if (cancelled) {
+                itemView.setOnClickListener(null);
+                itemView.setClickable(false);
+            } else {
+                itemView.setClickable(true);
+                itemView.setOnClickListener(v -> listener.onEventClick(event));
+            }
         }
     }
 }
-
