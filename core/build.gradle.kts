@@ -19,6 +19,13 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+
+    testLogging {
+        events("passed", "failed", "skipped")
+        showExceptions = false
+        showCauses = false
+        showStackTraces = false
+    }
 }
 
 tasks.withType<JavaCompile>().configureEach {
