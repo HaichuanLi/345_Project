@@ -28,4 +28,4 @@ jobs:
           gradle-version: 8.7
 
       - name: Run all tests
-        run: ./gradlew test --info
+        run: ./gradlew test --console=plain
