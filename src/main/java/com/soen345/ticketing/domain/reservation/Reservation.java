@@ -10,8 +10,7 @@ public record Reservation(
         UUID customerId,
         int quantity,
         Instant reservedAt,
-        ReservationStatus status,
-        String confirmationCode
+        ReservationStatus status
 ) {
     public Reservation {
         Objects.requireNonNull(id, "id must not be null");
@@ -19,7 +18,6 @@ public record Reservation(
         Objects.requireNonNull(customerId, "customerId must not be null");
         Objects.requireNonNull(reservedAt, "reservedAt must not be null");
         Objects.requireNonNull(status, "status must not be null");
-        Objects.requireNonNull(confirmationCode, "confirmationCode must not be null");
 
         if (quantity <= 0) {
             throw new IllegalArgumentException("quantity must be greater than zero");

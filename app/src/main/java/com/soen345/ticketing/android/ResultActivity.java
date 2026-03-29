@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.soen345.ticketing.android.databinding.ActivityResultBinding;
 
 public class ResultActivity extends AppCompatActivity {
+    public static final String EXTRA_USER_ID = "extra_user_id";
     public static final String EXTRA_NAME = "extra_name";
     public static final String EXTRA_EMAIL = "extra_email";
     public static final String EXTRA_PHONE = "extra_phone";
@@ -20,6 +21,7 @@ public class ResultActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         String name = getIntent().getStringExtra(EXTRA_NAME);
+        String userId = getIntent().getStringExtra(EXTRA_USER_ID);
         String email = getIntent().getStringExtra(EXTRA_EMAIL);
         String phone = getIntent().getStringExtra(EXTRA_PHONE);
         String role = getIntent().getStringExtra(EXTRA_ROLE);
@@ -32,11 +34,13 @@ public class ResultActivity extends AppCompatActivity {
 
         binding.viewEventsButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, EventListActivity.class);
+            intent.putExtra(EventListActivity.EXTRA_USER_ID, userId);
             startActivity(intent);
         });
 
         binding.logoutButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SKIP_AUTO_LOGIN, true);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });

@@ -13,6 +13,11 @@ import com.soen345.ticketing.application.auth.ValidationException;
 import com.soen345.ticketing.application.usecase.auth.LoginUseCase;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String EXTRA_SKIP_AUTO_LOGIN = "extra_skip_auto_login";
+
+    private static final String QUICK_TEST_ADMIN_IDENTIFIER = "admin@gmail.com";
+    private static final String QUICK_TEST_ADMIN_PASSWORD = "adminpass";
+
     private ActivityMainBinding binding;
     private LoginUseCase loginUseCase;
 
@@ -26,11 +31,23 @@ public class MainActivity extends AppCompatActivity {
 
         binding.loginButton.setOnClickListener(view -> attemptLogin());
         binding.registerLink.setOnClickListener(view -> navigateToRegister());
+
+        boolean skipAutoLogin = getIntent().getBooleanExtra(EXTRA_SKIP_AUTO_LOGIN, false);
+        if (!skipAutoLogin) {
+            attemptLogin(QUICK_TEST_ADMIN_IDENTIFIER, QUICK_TEST_ADMIN_PASSWORD);
+        }
     }
 
     private void attemptLogin() {
         String identifier = binding.identifierInput.getText().toString();
         String password = binding.passwordInput.getText().toString();
+
+        attemptLogin(identifier, password);
+    }
+
+    private void attemptLogin(String identifier, String password) {
+        binding.identifierInput.setText(identifier);
+        binding.passwordInput.setText(password);
 
         binding.errorText.setText("");
 
@@ -44,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToResult(LoginResult result) {
         Intent intent = new Intent(this, ResultActivity.class);
+        intent.putExtra(ResultActivity.EXTRA_USER_ID, result.userId().toString());
         intent.putExtra(ResultActivity.EXTRA_NAME, result.name());
         intent.putExtra(ResultActivity.EXTRA_EMAIL, result.email());
         intent.putExtra(ResultActivity.EXTRA_PHONE, result.phone());
