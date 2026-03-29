@@ -40,6 +40,7 @@ public class ResultActivity extends AppCompatActivity {
 
         binding.logoutButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.EXTRA_SKIP_AUTO_LOGIN, true);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });
