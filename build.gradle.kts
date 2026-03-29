@@ -12,3 +12,14 @@ buildscript {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
+subprojects {
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            events("passed", "failed", "skipped")
+            showExceptions = false
+            showCauses = false
+            showStackTraces = false
+        }
+    }
+}
