@@ -27,5 +27,13 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Test core module
-        run: ./gradlew :core:test
+      - name: Run all tests with detailed output
+        run: ./gradlew test --info --continue
+        continue-on-error: true
+
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: '**/build/test-results/test/TEST-*.xml'
+          check_name: Test Results
