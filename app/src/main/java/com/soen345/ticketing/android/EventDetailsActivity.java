@@ -128,14 +128,20 @@ public class EventDetailsActivity extends AppCompatActivity {
                         binding.cancelEventButton.setVisibility(View.GONE);
                         binding.editEventButton.setVisibility(View.GONE);
                     } else if (isAdmin) {
-                        binding.cancelEventButton.setVisibility(View.VISIBLE);
-                        binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
-                        binding.editEventButton.setVisibility(View.VISIBLE);
-                        binding.editEventButton.setOnClickListener(v -> {
-                            Intent intent = new Intent(this, EditEventActivity.class);
-                            intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId.toString());
-                            startActivity(intent);
-                        });
+                        boolean isOrganizer = event != null && event.organizerId().equals(userId);
+                        if (isOrganizer) {
+                            binding.cancelEventButton.setVisibility(View.VISIBLE);
+                            binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
+                            binding.editEventButton.setVisibility(View.VISIBLE);
+                            binding.editEventButton.setOnClickListener(v -> {
+                                Intent intent = new Intent(this, EditEventActivity.class);
+                                intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId.toString());
+                                startActivity(intent);
+                            });
+                        } else {
+                            binding.cancelEventButton.setVisibility(View.GONE);
+                            binding.editEventButton.setVisibility(View.GONE);
+                        }
                     }
                 });
             } catch (Exception e) {
