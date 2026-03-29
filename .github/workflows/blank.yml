@@ -28,11 +28,4 @@ jobs:
           gradle-version: 8.7
 
       - name: Run all tests
-        run: ./gradlew test
-
-      - name: Publish test results
-        if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          files: |
-            **/test-results/**/*.xml
+        run: ./gradlew test --console=plain
