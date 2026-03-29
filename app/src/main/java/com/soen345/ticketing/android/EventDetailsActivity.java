@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.soen345.ticketing.android.databinding.ActivityEventDetailsBinding;
 import com.soen345.ticketing.application.auth.ValidationException;
+import com.soen345.ticketing.application.event.AdminEventAccessPolicy;
 import com.soen345.ticketing.application.reservation.InsufficientSeatsException;
 import com.soen345.ticketing.application.reservation.ReserveTicketsCommand;
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
@@ -43,6 +44,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private double price;
     private boolean isAdmin;
     private String userRole;
+    private final AdminEventAccessPolicy adminEventAccessPolicy = new AdminEventAccessPolicy();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,21 +129,19 @@ public class EventDetailsActivity extends AppCompatActivity {
                         binding.ticketQuantityInput.setVisibility(View.GONE);
                         binding.cancelEventButton.setVisibility(View.GONE);
                         binding.editEventButton.setVisibility(View.GONE);
-                    } else if (isAdmin) {
-                        boolean isOrganizer = event != null && event.organizerId().equals(userId);
-                        if (isOrganizer) {
-                            binding.cancelEventButton.setVisibility(View.VISIBLE);
-                            binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
-                            binding.editEventButton.setVisibility(View.VISIBLE);
-                            binding.editEventButton.setOnClickListener(v -> {
-                                Intent intent = new Intent(this, EditEventActivity.class);
-                                intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId.toString());
-                                startActivity(intent);
-                            });
-                        } else {
-                            binding.cancelEventButton.setVisibility(View.GONE);
-                            binding.editEventButton.setVisibility(View.GONE);
-                        }
+                    } else if (isAdmin && adminEventAccessPolicy.canEditOrCancel(userId, event)) {
+                        binding.cancelEventButton.setVisibility(View.VISIBLE);
+                        binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
+                        binding.editEventButton.setVisibility(View.VISIBLE);
+                        binding.editEventButton.setOnClickListener(v -> {
+                            Intent intent = new Intent(this, EditEventActivity.class);
+                            intent.putExtra(EditEventActivity.EXTRA_EVENT_ID, eventId.toString());
+                            intent.putExtra(EditEventActivity.EXTRA_USER_ID, userId.toString());
+                            startActivity(intent);
+                        });
+                    } else {
+                        binding.cancelEventButton.setVisibility(View.GONE);
+                        binding.editEventButton.setVisibility(View.GONE);
                     }
                 });
             } catch (Exception e) {
@@ -166,6 +166,12 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void cancelEvent() {
         new Thread(() -> {
             try {
+                Event event = TicketingDataProvider.eventRepository(this).findById(eventId).orElse(null);
+                if (!adminEventAccessPolicy.canEditOrCancel(userId, event)) {
+                    runOnUiThread(() -> Toast.makeText(this, "You can only modify events you created.", Toast.LENGTH_LONG).show());
+                    return;
+                }
+
                 CancelEventUseCase cancelUseCase = new CancelEventUseCase(
                         TicketingDataProvider.eventRepository(this)
                 );
