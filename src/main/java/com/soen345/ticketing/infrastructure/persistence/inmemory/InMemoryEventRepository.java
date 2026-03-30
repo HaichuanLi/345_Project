@@ -5,15 +5,16 @@ import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.event.EventStatus;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class InMemoryEventRepository implements EventRepository {
-    private final Map<UUID, Event> eventsById = new HashMap<>();
+    private final Map<UUID, Event> eventsById = new ConcurrentHashMap<>();
+    private final Object lock = new Object();
 
     public InMemoryEventRepository() {
         seedSampleEvents();
@@ -21,29 +22,37 @@ public class InMemoryEventRepository implements EventRepository {
 
     @Override
     public Optional<Event> findById(UUID id) {
-        return Optional.ofNullable(eventsById.get(id));
+        synchronized (lock) {
+            return Optional.ofNullable(eventsById.get(id));
+        }
     }
 
     @Override
     public Event save(Event event) {
-        eventsById.put(event.id(), event);
-        return event;
+        synchronized (lock) {
+            eventsById.put(event.id(), event);
+            return event;
+        }
     }
 
     @Override
     public List<Event> listAvailable() {
-        return eventsById.values().stream()
-                .filter(event -> event.status() == EventStatus.PUBLISHED)
-                .filter(event -> event.availableTickets() > 0)
-                .collect(Collectors.toList());
+        synchronized (lock) {
+            return eventsById.values().stream()
+                    .filter(event -> event.status() == EventStatus.PUBLISHED)
+                    .filter(event -> event.availableTickets() > 0)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
     public List<Event> listAll() {
-        return eventsById.values().stream()
-                .filter(event -> event.status() == EventStatus.PUBLISHED
-                        || event.status() == EventStatus.CANCELLED)
-                .collect(Collectors.toList());
+        synchronized (lock) {
+            return eventsById.values().stream()
+                    .filter(event -> event.status() == EventStatus.PUBLISHED
+                            || event.status() == EventStatus.CANCELLED)
+                    .collect(Collectors.toList());
+        }
     }
 
     private void seedSampleEvents() {
@@ -58,11 +67,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Montreal Convention Centre",
                 LocalDateTime.of(2026, 4, 15, 9, 0),
                 LocalDateTime.of(2026, 4, 15, 17, 0),
-                500,
-                500,
-                organizerId,
-                EventStatus.PUBLISHED,
-                199.99
+                500, 500, organizerId, EventStatus.PUBLISHED, 199.99
         ));
 
         save(new Event(
@@ -74,11 +79,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Downtown Tech Hub",
                 LocalDateTime.of(2026, 5, 10, 10, 0),
                 LocalDateTime.of(2026, 5, 10, 16, 0),
-                100,
-                100,
-                organizerId,
-                EventStatus.PUBLISHED,
-                149.99
+                100, 100, organizerId, EventStatus.PUBLISHED, 149.99
         ));
 
         save(new Event(
@@ -90,11 +91,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Innovation District Hall",
                 LocalDateTime.of(2026, 5, 20, 14, 0),
                 LocalDateTime.of(2026, 5, 20, 18, 0),
-                300,
-                300,
-                organizerId,
-                EventStatus.PUBLISHED,
-                179.99
+                300, 300, organizerId, EventStatus.PUBLISHED, 179.99
         ));
 
         save(new Event(
@@ -106,11 +103,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Tech Training Center",
                 LocalDateTime.of(2026, 6, 1, 9, 0),
                 LocalDateTime.of(2026, 6, 1, 12, 0),
-                80,
-                80,
-                organizerId,
-                EventStatus.PUBLISHED,
-                129.99
+                80, 80, organizerId, EventStatus.PUBLISHED, 129.99
         ));
 
         save(new Event(
@@ -122,11 +115,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Enterprise Center",
                 LocalDateTime.of(2026, 6, 10, 13, 0),
                 LocalDateTime.of(2026, 6, 10, 17, 30),
-                200,
-                200,
-                organizerId,
-                EventStatus.PUBLISHED,
-                159.99
+                200, 200, organizerId, EventStatus.PUBLISHED, 159.99
         ));
 
         save(new Event(
@@ -138,11 +127,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Security Institute",
                 LocalDateTime.of(2026, 5, 25, 10, 0),
                 LocalDateTime.of(2026, 5, 25, 15, 0),
-                150,
-                150,
-                organizerId,
-                EventStatus.PUBLISHED,
-                139.99
+                150, 150, organizerId, EventStatus.PUBLISHED, 139.99
         ));
 
         save(new Event(
@@ -154,11 +139,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Creative Studios",
                 LocalDateTime.of(2026, 7, 5, 9, 30),
                 LocalDateTime.of(2026, 7, 5, 17, 0),
-                250,
-                250,
-                organizerId,
-                EventStatus.PUBLISHED,
-                189.99
+                250, 250, organizerId, EventStatus.PUBLISHED, 189.99
         ));
 
         save(new Event(
@@ -170,11 +151,7 @@ public class InMemoryEventRepository implements EventRepository {
                 "Digital Innovation Lab",
                 LocalDateTime.of(2026, 6, 15, 11, 0),
                 LocalDateTime.of(2026, 6, 15, 16, 0),
-                120,
-                120,
-                organizerId,
-                EventStatus.PUBLISHED,
-                119.99
+                120, 120, organizerId, EventStatus.PUBLISHED, 119.99
         ));
     }
 }

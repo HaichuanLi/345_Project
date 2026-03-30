@@ -34,25 +34,25 @@ public class ReserveTicketsUseCase {
         this.validator = validator;
     }
 
-    public ReservationConfirmation reserve(ReserveTicketsCommand command) {
-        // Validate the command
+    public synchronized ReservationConfirmation reserve(ReserveTicketsCommand command) {
+        //validate command
         validator.validate(command);
 
-        // Fetch the event
+        //fetch event
         Event event = eventRepository.findById(command.eventId())
                 .orElseThrow(() -> new EventNotFoundException(command.eventId()));
 
-        // Reject reservations for cancelled events
+        //reject reservations for cancelled events
         if (event.status() == com.soen345.ticketing.domain.event.EventStatus.CANCELLED) {
             throw new EventNotFoundException(command.eventId());
         }
 
-        // Check if sufficient seats are available
+        //check if enough seats available
         if (command.quantity() > event.availableTickets()) {
             throw new InsufficientSeatsException(command.quantity(), event.availableTickets());
         }
 
-        // Create the reservation
+        //create reservation
         Reservation reservation = new Reservation(
                 UUID.randomUUID(),
                 event.id(),
@@ -62,10 +62,10 @@ public class ReserveTicketsUseCase {
             ReservationStatus.CONFIRMED
         );
 
-        // Save the reservation
+        //save reservation
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // Update event's available tickets
+        //update event's available tickets
         int updatedAvailableTickets = event.availableTickets() - command.quantity();
         Event updatedEvent = new Event(
                 event.id(),
@@ -84,7 +84,7 @@ public class ReserveTicketsUseCase {
         );
         eventRepository.save(updatedEvent);
 
-        // Create and save the confirmation
+        //create and save confirmation
         ReservationConfirmation confirmation = new ReservationConfirmation(
                 savedReservation.id(),
                 savedReservation.customerId(),
@@ -96,7 +96,7 @@ public class ReserveTicketsUseCase {
 
         confirmationService.saveConfirmation(confirmation);
 
-        // Return the confirmation
+        //return the confirmation
         return confirmation;
     }
 }
