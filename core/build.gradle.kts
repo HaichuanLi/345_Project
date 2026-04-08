@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    jacoco
 }
 
 sourceSets {
@@ -20,12 +21,20 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-
+    finalizedBy(tasks.jacocoTestReport)
     testLogging {
         events("passed", "failed", "skipped")
         showExceptions = false
         showCauses = false
         showStackTraces = false
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
     }
 }
 
