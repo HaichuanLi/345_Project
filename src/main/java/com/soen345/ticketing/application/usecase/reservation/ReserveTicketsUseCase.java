@@ -3,15 +3,18 @@ package com.soen345.ticketing.application.usecase.reservation;
 import com.soen345.ticketing.application.reservation.EventDetailsDTO;
 import com.soen345.ticketing.application.reservation.EventNotFoundException;
 import com.soen345.ticketing.application.reservation.InsufficientSeatsException;
+import com.soen345.ticketing.application.reservation.NoOpReservationNotificationService;
 import com.soen345.ticketing.application.reservation.ReserveTicketsCommand;
 import com.soen345.ticketing.application.reservation.ReservationConfirmation;
 import com.soen345.ticketing.application.reservation.ReservationConfirmationService;
+import com.soen345.ticketing.application.reservation.ReservationNotificationService;
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.reservation.Reservation;
 import com.soen345.ticketing.domain.reservation.ReservationRepository;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
+import com.soen345.ticketing.domain.user.UserRepository;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -20,6 +23,8 @@ public class ReserveTicketsUseCase {
     private final EventRepository eventRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationConfirmationService confirmationService;
+    private final UserRepository userRepository;
+    private final ReservationNotificationService notificationService;
     private final ReserveTicketsValidator validator;
 
     public ReserveTicketsUseCase(
@@ -28,9 +33,31 @@ public class ReserveTicketsUseCase {
             ReservationConfirmationService confirmationService,
             ReserveTicketsValidator validator
     ) {
+        this(
+                eventRepository,
+                reservationRepository,
+                confirmationService,
+                null,
+                new NoOpReservationNotificationService(),
+                validator
+        );
+    }
+
+    public ReserveTicketsUseCase(
+            EventRepository eventRepository,
+            ReservationRepository reservationRepository,
+            ReservationConfirmationService confirmationService,
+            UserRepository userRepository,
+            ReservationNotificationService notificationService,
+            ReserveTicketsValidator validator
+    ) {
         this.eventRepository = eventRepository;
         this.reservationRepository = reservationRepository;
         this.confirmationService = confirmationService;
+        this.userRepository = userRepository;
+        this.notificationService = notificationService == null
+                ? new NoOpReservationNotificationService()
+                : notificationService;
         this.validator = validator;
     }
 
@@ -95,8 +122,24 @@ public class ReserveTicketsUseCase {
         );
 
         confirmationService.saveConfirmation(confirmation);
+        sendNotificationIfPossible(savedReservation.customerId(), confirmation);
 
         // Return the confirmation
         return confirmation;
+    }
+
+    private void sendNotificationIfPossible(UUID customerId, ReservationConfirmation confirmation) {
+        if (userRepository == null) {
+            return;
+        }
+
+        try {
+            userRepository.findById(customerId)
+                    .map(user -> user.email())
+                    .filter(email -> email != null && !email.isBlank())
+                    .ifPresent(email -> notificationService.sendReservationConfirmation(email, confirmation));
+        } catch (RuntimeException ignored) {
+            // Do not block reservation flow if notification fails.
+        }
     }
 }

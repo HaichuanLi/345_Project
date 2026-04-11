@@ -105,6 +105,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 var eventDetails = eventDetailsOptional.get();
                 Event event = TicketingDataProvider.eventRepository(this).findById(eventId).orElse(null);
                 boolean isCancelled = event != null && event.status() == EventStatus.CANCELLED;
+                boolean canAdminManageEvent = isAdmin && adminEventAccessPolicy.canEditOrCancel(userId, event);
 
                 runOnUiThread(() -> {
                     ticketsLeft = eventDetails.ticketsLeft();
@@ -117,9 +118,11 @@ public class EventDetailsActivity extends AppCompatActivity {
                     binding.eventStartTime.setText(formatDateTime(eventDetails.startDateTime().toString()));
                     binding.eventEndTime.setText(formatDateTime(eventDetails.endDateTime().toString()));
                     binding.eventDescription.setText(nonEmpty(eventDetails.fullDescription()));
+
                     binding.availableSeats.setText(String.valueOf(eventDetails.totalCapacity()));
                     binding.ticketsLeft.setText(String.valueOf(ticketsLeft));
                     binding.price.setText(formatMoney(price));
+
                     binding.ticketQuantityInput.setHint(getString(R.string.event_details_quantity_hint));
                     updateOrderTotal();
 
@@ -129,7 +132,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                         binding.ticketQuantityInput.setVisibility(View.GONE);
                         binding.cancelEventButton.setVisibility(View.GONE);
                         binding.editEventButton.setVisibility(View.GONE);
-                    } else if (isAdmin && adminEventAccessPolicy.canEditOrCancel(userId, event)) {
+                    } else if (canAdminManageEvent) {
                         binding.cancelEventButton.setVisibility(View.VISIBLE);
                         binding.cancelEventButton.setOnClickListener(v -> showCancelConfirmation());
                         binding.editEventButton.setVisibility(View.VISIBLE);
@@ -171,16 +174,13 @@ public class EventDetailsActivity extends AppCompatActivity {
                     runOnUiThread(() -> Toast.makeText(this, "You can only modify events you created.", Toast.LENGTH_LONG).show());
                     return;
                 }
-
                 CancelEventUseCase cancelUseCase = new CancelEventUseCase(
                         TicketingDataProvider.eventRepository(this)
                 );
                 cancelUseCase.execute(eventId);
                 runOnUiThread(this::finish);
             } catch (ValidationException e) {
-                runOnUiThread(() ->
-                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show()
-                );
+                runOnUiThread(() -> Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show());
             }
         }).start();
     }
@@ -214,6 +214,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             binding.ticketQuantityInput.setError(getString(R.string.event_details_quantity_error_min));
             return;
         }
+
         if (quantity > ticketsLeft) {
             binding.ticketQuantityInput.setError(getString(R.string.event_details_quantity_error_max, ticketsLeft));
             return;
@@ -221,33 +222,39 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
-                ReserveTicketsUseCase reserveTicketsUseCase = new ReserveTicketsUseCase(
-                        TicketingDataProvider.eventRepository(this),
-                        TicketingDataProvider.reservationRepository(this),
-                        TicketingDataProvider.confirmationService(this),
-                        new ReserveTicketsValidator()
+            ReserveTicketsUseCase reserveTicketsUseCase = new ReserveTicketsUseCase(
+                TicketingDataProvider.eventRepository(this),
+                TicketingDataProvider.reservationRepository(this),
+                TicketingDataProvider.confirmationService(this),
+                TicketingDataProvider.userRepository(this),
+                TicketingDataProvider.notificationService(this),
+                new ReserveTicketsValidator()
+            );
+
+            ReservationConfirmation confirmation = reserveTicketsUseCase.reserve(
+                new ReserveTicketsCommand(userId, eventId, quantity)
+            );
+
+            runOnUiThread(() -> {
+                Intent confirmationIntent = new Intent(this, ReservationConfirmationActivity.class);
+                confirmationIntent.putExtra(
+                    ReservationConfirmationActivity.EXTRA_RESERVATION_ID,
+                    confirmation.reservationId().toString()
                 );
-                ReservationConfirmation confirmation = reserveTicketsUseCase.reserve(
-                        new ReserveTicketsCommand(userId, eventId, quantity)
-                );
-                runOnUiThread(() -> {
-                    Intent confirmationIntent = new Intent(this, ReservationConfirmationActivity.class);
-                    confirmationIntent.putExtra(
-                            ReservationConfirmationActivity.EXTRA_RESERVATION_ID,
-                            confirmation.reservationId().toString()
-                    );
-                    startActivity(confirmationIntent);
-                    finish();
-                });
+                startActivity(confirmationIntent);
+                finish();
+            });
             } catch (InsufficientSeatsException ex) {
-                runOnUiThread(() ->
-                        binding.ticketQuantityInput.setError(getString(
-                                R.string.event_details_quantity_error_max, ex.getAvailableSeats()))
-                );
+            runOnUiThread(() ->
+                binding.ticketQuantityInput.setError(getString(
+                    R.string.event_details_quantity_error_max,
+                    ex.getAvailableSeats()
+                ))
+            );
             } catch (RuntimeException ex) {
-                runOnUiThread(() ->
-                        Toast.makeText(this, getString(R.string.reservation_failed_message), Toast.LENGTH_LONG).show()
-                );
+            runOnUiThread(() ->
+                Toast.makeText(this, getString(R.string.reservation_failed_message), Toast.LENGTH_LONG).show()
+            );
             }
         }).start();
     }
