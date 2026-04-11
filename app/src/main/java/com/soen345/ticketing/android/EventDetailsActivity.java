@@ -17,6 +17,8 @@ import com.soen345.ticketing.application.reservation.InsufficientSeatsException;
 import com.soen345.ticketing.application.reservation.ReserveTicketsCommand;
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
 import com.soen345.ticketing.application.reservation.ReservationConfirmation;
+import com.soen345.ticketing.infrastructure.email.NoOpReservationEmailService;
+import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import com.soen345.ticketing.application.usecase.event.CancelEventUseCase;
 import com.soen345.ticketing.application.usecase.event.ViewEventDetailsUseCase;
 import com.soen345.ticketing.application.usecase.reservation.ReserveTicketsUseCase;
@@ -225,7 +227,9 @@ public class EventDetailsActivity extends AppCompatActivity {
                         TicketingDataProvider.eventRepository(this),
                         TicketingDataProvider.reservationRepository(this),
                         TicketingDataProvider.confirmationService(this),
-                        new ReserveTicketsValidator()
+                        new ReserveTicketsValidator(),
+                        new InMemoryUserRepository(),
+                        new NoOpReservationEmailService()
                 );
                 ReservationConfirmation confirmation = reserveTicketsUseCase.reserve(
                         new ReserveTicketsCommand(userId, eventId, quantity)

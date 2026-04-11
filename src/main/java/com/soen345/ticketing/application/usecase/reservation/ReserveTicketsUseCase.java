@@ -6,12 +6,15 @@ import com.soen345.ticketing.application.reservation.InsufficientSeatsException;
 import com.soen345.ticketing.application.reservation.ReserveTicketsCommand;
 import com.soen345.ticketing.application.reservation.ReservationConfirmation;
 import com.soen345.ticketing.application.reservation.ReservationConfirmationService;
+import com.soen345.ticketing.application.reservation.ReservationEmailService;
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.reservation.Reservation;
 import com.soen345.ticketing.domain.reservation.ReservationRepository;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
+import com.soen345.ticketing.domain.user.User;
+import com.soen345.ticketing.domain.user.UserRepository;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -21,17 +24,23 @@ public class ReserveTicketsUseCase {
     private final ReservationRepository reservationRepository;
     private final ReservationConfirmationService confirmationService;
     private final ReserveTicketsValidator validator;
+    private final UserRepository userRepository;
+    private final ReservationEmailService emailService;
 
     public ReserveTicketsUseCase(
             EventRepository eventRepository,
             ReservationRepository reservationRepository,
             ReservationConfirmationService confirmationService,
-            ReserveTicketsValidator validator
+            ReserveTicketsValidator validator,
+            UserRepository userRepository,
+            ReservationEmailService emailService
     ) {
         this.eventRepository = eventRepository;
         this.reservationRepository = reservationRepository;
         this.confirmationService = confirmationService;
         this.validator = validator;
+        this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public synchronized ReservationConfirmation reserve(ReserveTicketsCommand command) {
@@ -95,6 +104,12 @@ public class ReserveTicketsUseCase {
         );
 
         confirmationService.saveConfirmation(confirmation);
+
+        //send confirmation email if user has an email address
+        User user = userRepository.findById(command.userId()).orElse(null);
+        if (user != null && user.email() != null && !user.email().isBlank()) {
+            emailService.sendReservationConfirmation(user.email(), confirmation);
+        }
 
         //return the confirmation
         return confirmation;

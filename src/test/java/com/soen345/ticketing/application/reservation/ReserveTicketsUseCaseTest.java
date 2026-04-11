@@ -6,8 +6,10 @@ import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventStatus;
 import com.soen345.ticketing.domain.reservation.Reservation;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
+import com.soen345.ticketing.infrastructure.email.NoOpReservationEmailService;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryEventRepository;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryReservationRepository;
+import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -25,11 +27,14 @@ class ReserveTicketsUseCaseTest {
     private final InMemoryEventRepository eventRepository = new InMemoryEventRepository();
     private final InMemoryReservationRepository reservationRepository = new InMemoryReservationRepository();
     private final RecordingConfirmationService confirmationService = new RecordingConfirmationService();
+    private final InMemoryUserRepository userRepository = new InMemoryUserRepository();
     private final ReserveTicketsUseCase useCase = new ReserveTicketsUseCase(
             eventRepository,
             reservationRepository,
             confirmationService,
-            new ReserveTicketsValidator()
+            new ReserveTicketsValidator(),
+            userRepository,
+            new NoOpReservationEmailService()
     );
 
     @Test

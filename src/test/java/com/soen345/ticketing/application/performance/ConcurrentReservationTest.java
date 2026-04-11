@@ -5,8 +5,10 @@ import com.soen345.ticketing.application.usecase.reservation.ReserveTicketsUseCa
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventStatus;
+import com.soen345.ticketing.infrastructure.email.NoOpReservationEmailService;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryEventRepository;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryReservationRepository;
+import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +53,9 @@ class ConcurrentReservationTest {
                 eventRepository,
                 reservationRepository,
                 new FakeConfirmationService(),
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                new InMemoryUserRepository(),
+                new NoOpReservationEmailService()
         );
 
         ExecutorService executor = Executors.newFixedThreadPool(CONCURRENT_USERS);
@@ -103,7 +107,9 @@ class ConcurrentReservationTest {
                 eventRepository,
                 reservationRepository,
                 new FakeConfirmationService(),
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                new InMemoryUserRepository(),
+                new NoOpReservationEmailService()
         );
 
         ExecutorService executor = Executors.newFixedThreadPool(userCount);

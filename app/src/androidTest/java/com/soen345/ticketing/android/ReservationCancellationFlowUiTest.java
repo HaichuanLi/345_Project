@@ -11,6 +11,8 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.soen345.ticketing.application.reservation.ReserveTicketsCommand;
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
 import com.soen345.ticketing.application.usecase.reservation.ReserveTicketsUseCase;
+import com.soen345.ticketing.infrastructure.email.NoOpReservationEmailService;
+import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventStatus;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
@@ -92,7 +94,9 @@ public class ReservationCancellationFlowUiTest {
                 TicketingDataProvider.eventRepository(context),
                 TicketingDataProvider.reservationRepository(context),
                 TicketingDataProvider.confirmationService(context),
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                new InMemoryUserRepository(),
+                new NoOpReservationEmailService()
         );
         return useCase.reserve(new ReserveTicketsCommand(userId, eventId, quantity));
     }
