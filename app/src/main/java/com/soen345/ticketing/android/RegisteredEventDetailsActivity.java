@@ -53,32 +53,43 @@ public class RegisteredEventDetailsActivity extends AppCompatActivity {
     }
 
     private void bindDetails() {
-        GetUserReservationsUseCase useCase = new GetUserReservationsUseCase(
-                TicketingDataProvider.reservationRepository(this),
-                TicketingDataProvider.eventRepository(this)
-        );
+        new Thread(() -> {
+            try {
+                GetUserReservationsUseCase useCase = new GetUserReservationsUseCase(
+                        TicketingDataProvider.reservationRepository(this),
+                        TicketingDataProvider.eventRepository(this)
+                );
 
-        List<UserReservationDTO> reservations = useCase.execute(userId);
-        UserReservationDTO reservation = reservations.stream()
-                .filter(r -> r.reservationId().equals(reservationId))
-                .findFirst()
-                .orElse(null);
+                List<UserReservationDTO> reservations = useCase.execute(userId);
+                UserReservationDTO reservation = reservations.stream()
+                        .filter(r -> r.reservationId().equals(reservationId))
+                        .findFirst()
+                        .orElse(null);
 
-        if (reservation == null) {
-            Toast.makeText(this, getString(R.string.registered_event_details_not_found), Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
+                runOnUiThread(() -> {
+                    if (reservation == null) {
+                        Toast.makeText(this, getString(R.string.registered_event_details_not_found), Toast.LENGTH_LONG).show();
+                        finish();
+                        return;
+                    }
 
-        binding.eventName.setText(reservation.eventName());
-        binding.eventCode.setText(reservation.eventCode());
-        binding.eventCategory.setText(reservation.category());
-        binding.eventVenue.setText(reservation.venue());
-        binding.eventStartTime.setText(reservation.startDateTime().format(DISPLAY_DATE_TIME));
-        binding.eventEndTime.setText(reservation.endDateTime().format(DISPLAY_DATE_TIME));
-        binding.eventDescription.setText(reservation.description());
-        binding.ticketsPurchased.setText(String.valueOf(reservation.ticketsPurchased()));
-        binding.totalPrice.setText(String.format(Locale.CANADA, "$%.2f", reservation.totalPrice()));
+                    binding.eventName.setText(reservation.eventName());
+                    binding.eventCode.setText(reservation.eventCode());
+                    binding.eventCategory.setText(reservation.category());
+                    binding.eventVenue.setText(reservation.venue());
+                    binding.eventStartTime.setText(reservation.startDateTime().format(DISPLAY_DATE_TIME));
+                    binding.eventEndTime.setText(reservation.endDateTime().format(DISPLAY_DATE_TIME));
+                    binding.eventDescription.setText(reservation.description());
+                    binding.ticketsPurchased.setText(String.valueOf(reservation.ticketsPurchased()));
+                    binding.totalPrice.setText(String.format(Locale.CANADA, "$%.2f", reservation.totalPrice()));
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Failed to load reservation details", Toast.LENGTH_LONG).show();
+                    finish();
+                });
+            }
+        }).start();
     }
 
     private void showCancelConfirmation() {
@@ -93,15 +104,17 @@ public class RegisteredEventDetailsActivity extends AppCompatActivity {
     }
 
     private void cancelReservation() {
-        try {
-            CancelReservationUseCase useCase = new CancelReservationUseCase(
-                    TicketingDataProvider.reservationRepository(this),
-                    TicketingDataProvider.eventRepository(this)
-            );
-            useCase.execute(reservationId);
-            finish();
-        } catch (ValidationException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        new Thread(() -> {
+            try {
+                CancelReservationUseCase useCase = new CancelReservationUseCase(
+                        TicketingDataProvider.reservationRepository(this),
+                        TicketingDataProvider.eventRepository(this)
+                );
+                useCase.execute(reservationId);
+                runOnUiThread(this::finish);
+            } catch (ValidationException e) {
+                runOnUiThread(() -> Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 }
