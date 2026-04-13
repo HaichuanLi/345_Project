@@ -54,3 +54,12 @@ If Android Studio still shows red files after these changes:
 2. Delete the project's `.idea` folder.
 3. Re-open the root folder as a Gradle project.
 4. Let Android Studio finish the Gradle sync.
+
+## Send Confirmation Emails
+
+For the application to be able to send emails it needs a sender email.
+In this case it will be whichever email is set in the local.properties file.
+
+1. Add the GOOGLE_APP_PASSWORD SENDER_EMAIL variables to local.properties
+2. Get an App Password within your google account so our app bypasses double auth
+3. set the variables on local.properties to your google email and the App Password
