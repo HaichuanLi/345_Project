@@ -4,6 +4,7 @@ import com.soen345.ticketing.application.auth.LoginRequestValidator;
 import com.soen345.ticketing.application.auth.PasswordHasher;
 import com.soen345.ticketing.application.auth.RegisterCommand;
 import com.soen345.ticketing.application.auth.ValidationException;
+import com.soen345.ticketing.domain.Notifications.NotificationService;
 import com.soen345.ticketing.domain.user.User;
 import com.soen345.ticketing.domain.user.UserRepository;
 import com.soen345.ticketing.domain.user.UserStatus;
@@ -13,10 +14,16 @@ import java.util.UUID;
 public class RegisterUseCase {
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
+    private final NotificationService notificationService;
 
-    public RegisterUseCase(UserRepository userRepository, PasswordHasher passwordHasher) {
+    public RegisterUseCase(UserRepository userRepository, PasswordHasher passwordHasher, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.passwordHasher = passwordHasher;
+        this.notificationService = notificationService;
+    }
+
+    public RegisterUseCase(UserRepository userRepository, PasswordHasher passwordHasher) {
+        this(userRepository, passwordHasher, null);
     }
 
     public User register(RegisterCommand command) {
@@ -34,7 +41,17 @@ public class RegisterUseCase {
                 UserStatus.ACTIVE
         );
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        if (notificationService != null && savedUser.email() != null && !savedUser.email().isBlank()) {
+            notificationService.sendConfirmation(
+                    savedUser.email(),
+                    "Welcome to Ticketing Application",
+                    "Your account has been successfully created. Welcome to our ticketing application!"
+            );
+        }
+
+        return savedUser;
     }
 
     private void validateCommand(RegisterCommand command) {

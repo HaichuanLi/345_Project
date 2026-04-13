@@ -6,12 +6,16 @@ import com.soen345.ticketing.application.reservation.ReservationConfirmationServ
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
 import com.soen345.ticketing.application.reservation.SeatAvailabilityService;
 import com.soen345.ticketing.application.usecase.reservation.ReserveTicketsUseCase;
+import com.soen345.ticketing.domain.Notifications.NotificationService;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventStatus;
 import com.soen345.ticketing.domain.reservation.Reservation;
+import com.soen345.ticketing.domain.user.UserRepository;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryEventRepository;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryReservationRepository;
+import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -22,6 +26,9 @@ import static org.junit.Assert.*;
 
 public class TicketReservationServiceTest {
 
+    private final NotificationService notificationService = Mockito.mock(NotificationService.class);
+    private final UserRepository userRepository = new InMemoryUserRepository();
+
     @Test
     public void TicketReservationService_ReserveSingleTicket_Success() {
         InMemoryEventRepository eventRepository = new InMemoryEventRepository();
@@ -31,7 +38,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(10, 10, 75.0);
@@ -57,7 +66,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(25, 25, 100.0);
@@ -81,7 +92,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(20, 20, 60.0);
@@ -119,7 +132,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(30, 30, 120.0);
@@ -159,7 +174,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(5, 5, 90.0);
@@ -177,7 +194,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(12, 12, 50.0);
@@ -198,7 +217,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(20, 20, 80.0);
@@ -219,7 +240,9 @@ public class TicketReservationServiceTest {
                 eventRepository,
                 reservationRepository,
                 confirmationService,
-                new ReserveTicketsValidator()
+                new ReserveTicketsValidator(),
+                notificationService,
+                userRepository
         );
 
         Event event = createEvent(8, 8, 45.0);

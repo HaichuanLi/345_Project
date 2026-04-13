@@ -5,6 +5,7 @@ import android.content.Context;
 import com.soen345.ticketing.application.reservation.ReservationConfirmationService;
 import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.reservation.ReservationRepository;
+import com.soen345.ticketing.domain.user.UserRepository;
 import com.soen345.ticketing.infrastructure.persistence.filebased.FileBasedReservationConfirmationService;
 
 import java.io.File;
@@ -16,6 +17,7 @@ public final class TicketingDataProvider {
     private static EventRepository eventRepository;
     private static ReservationRepository reservationRepository;
     private static ReservationConfirmationService confirmationService;
+    private static UserRepository userRepository;
 
     private TicketingDataProvider() {}
 
@@ -34,14 +36,20 @@ public final class TicketingDataProvider {
         return confirmationService;
     }
 
+    public static synchronized UserRepository userRepository(Context context) {
+        ensureInitialized(context);
+        return userRepository;
+    }
+
     private static void ensureInitialized(Context context) {
-        if (eventRepository != null && reservationRepository != null && confirmationService != null) {
+        if (eventRepository != null && reservationRepository != null && confirmationService != null && userRepository != null) {
             return;
         }
 
         // Swapped from InMemory to Firestore
         eventRepository = new FirestoreEventRepository();
         reservationRepository = new FirestoreReservationRepository();
+        userRepository = new FirestoreUserRepository();
 
         // Confirmation service stays file-based (no network needed)
         File storageDir = new File(context.getFilesDir(), CONFIRMATION_DIR);

@@ -2,13 +2,20 @@ package com.soen345.ticketing.application.reservation;
 
 import com.soen345.ticketing.application.auth.ValidationException;
 import com.soen345.ticketing.application.usecase.reservation.ReserveTicketsUseCase;
+import com.soen345.ticketing.domain.Notifications.NotificationService;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventStatus;
 import com.soen345.ticketing.domain.reservation.Reservation;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
+import com.soen345.ticketing.domain.user.Role;
+import com.soen345.ticketing.domain.user.User;
+import com.soen345.ticketing.domain.user.UserRepository;
+import com.soen345.ticketing.domain.user.UserStatus;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryEventRepository;
 import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryReservationRepository;
+import com.soen345.ticketing.infrastructure.persistence.inmemory.InMemoryUserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -20,22 +27,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 
 class ReserveTicketsUseCaseTest {
     private final InMemoryEventRepository eventRepository = new InMemoryEventRepository();
     private final InMemoryReservationRepository reservationRepository = new InMemoryReservationRepository();
     private final RecordingConfirmationService confirmationService = new RecordingConfirmationService();
+    private final NotificationService notificationService = Mockito.mock(NotificationService.class);
+    private final UserRepository userRepository = new InMemoryUserRepository();
     private final ReserveTicketsUseCase useCase = new ReserveTicketsUseCase(
             eventRepository,
             reservationRepository,
             confirmationService,
-            new ReserveTicketsValidator()
+            new ReserveTicketsValidator(),
+            notificationService,
+            userRepository
     );
 
     @Test
     void reservesTicketsAndStoresConfirmation() {
         Event event = saveEvent(10, 10, EventStatus.PUBLISHED);
         UUID userId = UUID.randomUUID();
+        User user = new User(userId, "Test User", "test@example.com", "1234567890", "hash", Role.CUSTOMER, UserStatus.ACTIVE);
+        userRepository.save(user);
 
         ReservationConfirmation confirmation = useCase.reserve(
                 new ReserveTicketsCommand(userId, event.id(), 3)
@@ -51,6 +66,8 @@ class ReserveTicketsUseCaseTest {
         assertEquals(event.id(), confirmation.eventDetails().eventId());
         assertEquals(7, confirmation.eventDetails().availableTickets());
         assertTrue(confirmationService.getConfirmation(confirmation.reservationId()).isPresent());
+        
+        verify(notificationService).sendConfirmation(anyString(), anyString(), anyString());
     }
 
     @Test

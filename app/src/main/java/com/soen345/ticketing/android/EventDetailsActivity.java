@@ -22,6 +22,7 @@ import com.soen345.ticketing.application.usecase.event.ViewEventDetailsUseCase;
 import com.soen345.ticketing.application.usecase.reservation.ReserveTicketsUseCase;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventStatus;
+import com.soen345.ticketing.infrastructure.Notifications.EmailNotificationAdapter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -192,7 +193,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(CharSequence s, int start, int someBefore, int count) {
                 updateOrderTotal();
             }
 
@@ -221,11 +222,18 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
+                EmailNotificationAdapter notificationAdapter = new EmailNotificationAdapter(
+                        BuildConfig.SENDER_EMAIL,
+                        BuildConfig.GOOGLE_APP_PASSWORD
+                );
+
                 ReserveTicketsUseCase reserveTicketsUseCase = new ReserveTicketsUseCase(
                         TicketingDataProvider.eventRepository(this),
                         TicketingDataProvider.reservationRepository(this),
                         TicketingDataProvider.confirmationService(this),
-                        new ReserveTicketsValidator()
+                        new ReserveTicketsValidator(),
+                        notificationAdapter,
+                        TicketingDataProvider.userRepository(this)
                 );
                 ReservationConfirmation confirmation = reserveTicketsUseCase.reserve(
                         new ReserveTicketsCommand(userId, eventId, quantity)
@@ -245,6 +253,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 R.string.event_details_quantity_error_max, ex.getAvailableSeats()))
                 );
             } catch (RuntimeException ex) {
+                ex.printStackTrace();
                 runOnUiThread(() ->
                         Toast.makeText(this, getString(R.string.reservation_failed_message), Toast.LENGTH_LONG).show()
                 );
