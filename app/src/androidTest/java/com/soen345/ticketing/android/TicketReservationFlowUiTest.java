@@ -17,11 +17,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -49,8 +46,10 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("2"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.confirmationTitle)).check(matches(isDisplayed()));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() ->
+                    onView(withId(R.id.confirmationTitle)).check(matches(isDisplayed()))
+            );
         }
     }
 
@@ -72,8 +71,10 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("1"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.reservationIdValue)).check(matches(not(withText(""))));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() ->
+                    onView(withId(R.id.reservationIdValue)).check(matches(not(withText(""))))
+            );
         }
     }
 
@@ -84,11 +85,13 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("2"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.eventTitleValue)).check(matches(withText(event.title())));
-            onView(withId(R.id.eventCodeValue)).check(matches(withText(event.eventCode())));
-            onView(withId(R.id.eventCategoryValue)).check(matches(withText(event.category())));
-            onView(withId(R.id.eventVenueValue)).check(matches(withText(event.venue())));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() -> {
+                onView(withId(R.id.eventTitleValue)).check(matches(withText(event.title())));
+                onView(withId(R.id.eventCodeValue)).check(matches(withText(event.eventCode())));
+                onView(withId(R.id.eventCategoryValue)).check(matches(withText(event.category())));
+                onView(withId(R.id.eventVenueValue)).check(matches(withText(event.venue())));
+            });
         }
     }
 
@@ -99,8 +102,10 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("4"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.ticketsReservedValue)).check(matches(withText("4")));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() ->
+                    onView(withId(R.id.ticketsReservedValue)).check(matches(withText("4")))
+            );
         }
     }
 
@@ -111,8 +116,10 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("2"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.orderTotalValue)).check(matches(withText("$246.90")));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() ->
+                    onView(withId(R.id.orderTotalValue)).check(matches(withText("$246.90")))
+            );
         }
     }
 
@@ -123,8 +130,10 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("1"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.reservedAtValue)).check(matches(not(withText(""))));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() ->
+                    onView(withId(R.id.reservedAtValue)).check(matches(not(withText(""))))
+            );
         }
     }
 
@@ -135,9 +144,11 @@ public class TicketReservationFlowUiTest {
         try (ActivityScenario<EventDetailsActivity> ignored = launchEventDetails(event.id())) {
             onView(withId(R.id.ticketQuantityInput)).perform(replaceText("1"));
             onView(withId(R.id.reserveTicketButton)).perform(click());
-            onView(withId(R.id.confirmationTitle)).check(matches(withText("Reservation Confirmation")));
-            onView(withId(R.id.reservationIdValue)).check(matches(isDisplayed()));
-            pressBack();
+
+            AndroidTestSupport.waitForAssertion(() -> {
+                onView(withId(R.id.confirmationTitle)).check(matches(withText("Reservation Confirmation")));
+                onView(withId(R.id.reservationIdValue)).check(matches(isDisplayed()));
+            });
         }
     }
 
