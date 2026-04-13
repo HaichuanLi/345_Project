@@ -11,17 +11,18 @@ Starter scaffold for a SOEN 345 ticket reservation system.
 
 ## Current Structure
 
-The project follows a modular monolith layout with clear boundaries:
+The project follows a **layered modular monolith** architecture with clear boundaries:
 
-- `presentation`: entry points and request/response DTOs
-- `application`: use cases and validation logic
-- `domain`: business models and repository interfaces
-- `infrastructure`: concrete adapters such as in-memory repositories and password hashing
+- **`presentation`**: entry points and request/response DTOs
+- **`application`**: use cases and validation logic
+- **`domain`**: business models and repository interfaces
+- **`infrastructure`**: concrete adapters such as in-memory repositories and password hashing
 
-The repo also includes:
+The repository also includes:
 
-- `app`: Android UI module for emulator demos
-- `core`: Gradle Java module that reuses the current business logic under `src/main/java`
+- **`app`**: the Android UI module used for emulator demos and instrumented UI tests
+- **`core`**: the Gradle Java module that contains and builds the shared business logic from `src/main/java`
+
 
 ## TDD Workflow
 
