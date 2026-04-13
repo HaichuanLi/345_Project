@@ -7,11 +7,14 @@ import com.soen345.ticketing.application.reservation.ReserveTicketsCommand;
 import com.soen345.ticketing.application.reservation.ReservationConfirmation;
 import com.soen345.ticketing.application.reservation.ReservationConfirmationService;
 import com.soen345.ticketing.application.reservation.ReserveTicketsValidator;
+import com.soen345.ticketing.domain.Notifications.NotificationService;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.reservation.Reservation;
 import com.soen345.ticketing.domain.reservation.ReservationRepository;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
+import com.soen345.ticketing.domain.user.User;
+import com.soen345.ticketing.domain.user.UserRepository;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -21,6 +24,24 @@ public class ReserveTicketsUseCase {
     private final ReservationRepository reservationRepository;
     private final ReservationConfirmationService confirmationService;
     private final ReserveTicketsValidator validator;
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
+
+    public ReserveTicketsUseCase(
+            EventRepository eventRepository,
+            ReservationRepository reservationRepository,
+            ReservationConfirmationService confirmationService,
+            ReserveTicketsValidator validator,
+            NotificationService notificationService,
+            UserRepository userRepository
+    ) {
+        this.eventRepository = eventRepository;
+        this.reservationRepository = reservationRepository;
+        this.confirmationService = confirmationService;
+        this.validator = validator;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
+    }
 
     public ReserveTicketsUseCase(
             EventRepository eventRepository,
@@ -28,10 +49,7 @@ public class ReserveTicketsUseCase {
             ReservationConfirmationService confirmationService,
             ReserveTicketsValidator validator
     ) {
-        this.eventRepository = eventRepository;
-        this.reservationRepository = reservationRepository;
-        this.confirmationService = confirmationService;
-        this.validator = validator;
+        this(eventRepository, reservationRepository, confirmationService, validator, null, null);
     }
 
     public synchronized ReservationConfirmation reserve(ReserveTicketsCommand command) {
@@ -93,6 +111,15 @@ public class ReserveTicketsUseCase {
                 savedReservation.reservedAt(),
                 savedReservation.status().toString()
         );
+
+        if (notificationService != null && userRepository != null) {
+            userRepository.findById(command.userId()).ifPresent(user -> {
+                if (user.email() != null && !user.email().isBlank()) {
+                    notificationService.sendConfirmation(user.email(), "Reservation Confirmation", confirmation.toString());
+                }
+            });
+        }
+
 
         confirmationService.saveConfirmation(confirmation);
 

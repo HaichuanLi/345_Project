@@ -4,7 +4,9 @@ import com.soen345.ticketing.application.auth.LoginRequestValidator;
 import com.soen345.ticketing.application.auth.PasswordHasher;
 import com.soen345.ticketing.application.usecase.auth.LoginUseCase;
 import com.soen345.ticketing.application.usecase.auth.RegisterUseCase;
+import com.soen345.ticketing.domain.Notifications.NotificationService;
 import com.soen345.ticketing.domain.user.UserRepository;
+import com.soen345.ticketing.infrastructure.Notifications.EmailNotificationAdapter;
 import com.soen345.ticketing.infrastructure.security.PlainTextPasswordHasher;
 
 public final class FakeAuthFactory {
@@ -28,6 +30,10 @@ public final class FakeAuthFactory {
     }
 
     private static RegisterUseCase createRegisterUseCase() {
-        return new RegisterUseCase(USER_REPOSITORY, PASSWORD_HASHER);
+        NotificationService notificationService = new EmailNotificationAdapter(
+                BuildConfig.SENDER_EMAIL,
+                BuildConfig.GOOGLE_APP_PASSWORD
+        );
+        return new RegisterUseCase(USER_REPOSITORY, PASSWORD_HASHER, notificationService);
     }
 }

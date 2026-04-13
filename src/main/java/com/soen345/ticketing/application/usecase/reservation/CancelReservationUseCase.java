@@ -1,24 +1,40 @@
 package com.soen345.ticketing.application.usecase.reservation;
 
 import com.soen345.ticketing.application.auth.ValidationException;
+import com.soen345.ticketing.domain.Notifications.NotificationService;
 import com.soen345.ticketing.domain.event.Event;
 import com.soen345.ticketing.domain.event.EventRepository;
 import com.soen345.ticketing.domain.reservation.Reservation;
 import com.soen345.ticketing.domain.reservation.ReservationRepository;
 import com.soen345.ticketing.domain.reservation.ReservationStatus;
+import com.soen345.ticketing.domain.user.User;
+import com.soen345.ticketing.domain.user.UserRepository;
 
 import java.util.UUID;
 
 public class CancelReservationUseCase {
     private final ReservationRepository reservationRepository;
     private final EventRepository eventRepository;
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
+
+    public CancelReservationUseCase(
+            ReservationRepository reservationRepository,
+            EventRepository eventRepository,
+            NotificationService notificationService,
+            UserRepository userRepository
+    ) {
+        this.reservationRepository = reservationRepository;
+        this.eventRepository = eventRepository;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
+    }
 
     public CancelReservationUseCase(
             ReservationRepository reservationRepository,
             EventRepository eventRepository
     ) {
-        this.reservationRepository = reservationRepository;
-        this.eventRepository = eventRepository;
+        this(reservationRepository, eventRepository, null, null);
     }
 
     public void execute(UUID reservationId) {
@@ -65,6 +81,21 @@ public class CancelReservationUseCase {
                     event.price()
             );
             eventRepository.save(updatedEvent);
+
+            if (notificationService != null && userRepository != null) {
+                userRepository.findById(reservation.customerId()).ifPresent(user -> {
+                    if (user.email() != null && !user.email().isBlank()) {
+                        String subject = "Reservation Cancelled";
+                        String body = String.format(
+                                "Your reservation for the event '%s' has been successfully cancelled. " +
+                                "Number of tickets released: %d.",
+                                event.title(),
+                                reservation.quantity()
+                        );
+                        notificationService.sendConfirmation(user.email(), subject, body);
+                    }
+                });
+            }
         }
     }
 }

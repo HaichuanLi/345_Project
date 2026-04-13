@@ -11,6 +11,7 @@ import com.soen345.ticketing.application.auth.ValidationException;
 import com.soen345.ticketing.application.usecase.reservation.CancelReservationUseCase;
 import com.soen345.ticketing.application.usecase.reservation.GetUserReservationsUseCase;
 import com.soen345.ticketing.application.usecase.reservation.UserReservationDTO;
+import com.soen345.ticketing.infrastructure.Notifications.EmailNotificationAdapter;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -106,9 +107,16 @@ public class RegisteredEventDetailsActivity extends AppCompatActivity {
     private void cancelReservation() {
         new Thread(() -> {
             try {
+                EmailNotificationAdapter notificationAdapter = new EmailNotificationAdapter(
+                        BuildConfig.SENDER_EMAIL,
+                        BuildConfig.GOOGLE_APP_PASSWORD
+                );
+
                 CancelReservationUseCase useCase = new CancelReservationUseCase(
                         TicketingDataProvider.reservationRepository(this),
-                        TicketingDataProvider.eventRepository(this)
+                        TicketingDataProvider.eventRepository(this),
+                        notificationAdapter,
+                        TicketingDataProvider.userRepository(this)
                 );
                 useCase.execute(reservationId);
                 runOnUiThread(this::finish);

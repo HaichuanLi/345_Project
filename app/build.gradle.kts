@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
     id("jacoco")
+}
+
+val localProperties = Properties()
+val localPropertiesFile = project.rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -16,6 +24,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SENDER_EMAIL", "\"${localProperties.getProperty("SENDER_EMAIL") ?: ""}\"")
+        buildConfigField("String", "GOOGLE_APP_PASSWORD", "\"${localProperties.getProperty("GOOGLE_APP_PASSWORD") ?: ""}\"")
     }
 
     buildTypes {
@@ -32,6 +43,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     testOptions {
@@ -40,6 +52,14 @@ android {
                 isIncludeNoLocationClasses = true
                 excludes = listOf("jdk.internal.*")
             }
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/NOTICE.md"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
         }
     }
 }
